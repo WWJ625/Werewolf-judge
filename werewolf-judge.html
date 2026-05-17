@@ -4,275 +4,698 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>狼人杀法官助手</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 <style>
+/* ============================================================
+   MOONLIT GOTHIC — 狼人杀法官助手主题
+   ============================================================ */
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ---- CSS Variables ---- */
 :root {
-  --bg: #0d0d1a;
-  --bg-panel: #1a1a2e;
-  --bg-card: #1a1a30;
-  --bg-card-alt: #222240;
-  --bg-card-hover: #252545;
-  --bg-card-sel: #2a2a50;
-  --bg-input: #222;
-  --bg-shooter: #222;
-  --bg-log: #111;
-  --text: #e0e0e0;
-  --text-secondary: #aaa;
-  --text-muted: #888;
-  --text-dim: #666;
-  --text-log: #bbb;
-  --text-btn-dark: #ccc;
-  --border: #2a2a3e;
-  --border-card: #333;
-  --border-strong: #444;
-  --border-log: #1f1f35;
-  --border-shooter: #555;
-  --toggle-bg: #444;
+  /* Background layers */
+  --bg-deep: #050510;
+  --bg: #08081a;
+  --bg-panel: #0d0d24;
+  --bg-card: #111130;
+  --bg-card-alt: #151538;
+  --bg-card-hover: #1a1a45;
+  --bg-card-sel: #1d1d50;
+  --bg-input: #0f0f28;
+  --bg-shooter: #0f0f28;
+  --bg-log: #08081c;
+
+  /* Text */
+  --text: #e4dcc8;
+  --text-secondary: #a09880;
+  --text-muted: #6b6458;
+  --text-dim: #4a4438;
+  --text-log: #a09880;
+  --text-btn-dark: #c8b898;
+
+  /* Borders */
+  --border: #1c1c3a;
+  --border-card: #1c1c3a;
+  --border-strong: #282850;
+  --border-log: #141430;
+  --border-shooter: #282850;
+
+  /* Accent — aged gold */
+  --accent: #c8a84e;
+  --accent-glow: rgba(200, 168, 78, 0.25);
+  --accent-bg: rgba(200, 168, 78, 0.08);
+
+  /* Toggle */
+  --toggle-bg: #2a2a4a;
+  --toggle-knob: #e4dcc8;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  /* Transition */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+/* ---- Light Theme ---- */
 body.light {
-  --bg: #f0f0f5;
-  --bg-panel: #ffffff;
-  --bg-card: #f5f5f5;
-  --bg-card-alt: #e8e8f0;
-  --bg-card-hover: #e0e0eb;
-  --bg-card-sel: #d8d8f0;
-  --bg-input: #e8e8e8;
-  --bg-shooter: #e8e8e8;
-  --bg-log: #f0f0f0;
-  --text: #222;
-  --text-secondary: #555;
-  --text-muted: #666;
-  --text-dim: #888;
-  --text-log: #555;
-  --text-btn-dark: #555;
-  --border: #ddd;
-  --border-card: #ccc;
-  --border-strong: #bbb;
-  --border-log: #e8e8e8;
-  --border-shooter: #bbb;
-  --toggle-bg: #bbb;
+  --bg-deep: #e8e0d0;
+  --bg: #ede5d5;
+  --bg-panel: #faf6ee;
+  --bg-card: #f5f0e5;
+  --bg-card-alt: #ede5d8;
+  --bg-card-hover: #e5dcc8;
+  --bg-card-sel: #ddd0b8;
+  --bg-input: #ede5d8;
+  --bg-shooter: #ede5d8;
+  --bg-log: #f0ebe0;
+
+  --text: #2a2218;
+  --text-secondary: #5a4e3a;
+  --text-muted: #7a6e5a;
+  --text-dim: #9a8e7a;
+  --text-log: #5a4e3a;
+  --text-btn-dark: #4a3e2a;
+
+  --border: #d8ccb0;
+  --border-card: #d0c4a8;
+  --border-strong: #b8a880;
+  --border-log: #e0d8c0;
+  --border-shooter: #b8a880;
+
+  --accent: #a08030;
+  --accent-glow: rgba(160, 128, 48, 0.2);
+  --accent-bg: rgba(160, 128, 48, 0.06);
+
+  --toggle-bg: #c0b898;
+  --toggle-knob: #faf6ee;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
 }
+
+/* ---- Base ---- */
 body {
-  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
-  background: var(--bg);
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(70,70,140,0.12) 0%, transparent 60%),
+    radial-gradient(circle at 15% 75%, rgba(180,80,80,0.06) 0%, transparent 45%),
+    radial-gradient(circle at 85% 55%, rgba(80,80,180,0.06) 0%, transparent 45%),
+    var(--bg);
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1.5;
 }
-#app { max-width: 1100px; margin: 0 auto; padding: 16px; }
 
-.btn {
-  display: inline-block; padding: 10px 22px; border: none; border-radius: 8px;
-  font-size: 15px; cursor: pointer; font-weight: 600; transition: all 0.2s;
-  font-family: inherit;
+/* Subtle noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
 }
-.btn:hover { transform: translateY(-1px); opacity: 0.9; }
-.btn:active { transform: scale(0.97); }
-.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
-.btn-success { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #111; }
-.btn-danger { background: linear-gradient(135deg, #f5576c, #e53935); color: #fff; }
-.btn-warn { background: linear-gradient(135deg, #f093fb, #f5576c); color: #fff; }
-.btn-dark { background: var(--bg-input); color: var(--text-btn-dark); border: 1px solid var(--border-strong); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-.btn-sm { padding: 5px 10px; font-size: 12px; }
 
-.role-card.toggle { cursor: pointer; transition: all 0.2s; font-weight: 600; }
-.role-card.toggle:hover { border-color: var(--text-muted); }
-.role-card.toggle.on { border-color: var(--tc); color: var(--tc); background: var(--tc-bg); box-shadow: 0 0 12px var(--tc-glow); }
+#app { max-width: 1100px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
 
-.screen { display: none; }
-.screen.active { display: block; }
+/* ---- Typography ---- */
+h2, h3, h4 {
+  font-family: 'ZCOOL XiaoWei', 'Microsoft YaHei', serif;
+  letter-spacing: 0.04em;
+}
+
 .setup-title {
-  text-align: center; font-size: 28px; font-weight: 900;
-  background: linear-gradient(135deg, #f5576c, #ff9800, #f5576c);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin-bottom: 24px; letter-spacing: 4px;
+  font-family: 'ZCOOL XiaoWei', 'Microsoft YaHei', serif;
 }
-.setup-section { background: var(--bg-panel); border-radius: 14px; padding: 24px; margin-bottom: 18px; border: 1px solid var(--border); }
-.setup-section h3 { font-size: 17px; margin-bottom: 14px; color: var(--text-secondary); }
-.mode-cards { display: flex; gap: 16px; }
-.mode-card {
-  flex: 1; background: var(--bg-card-alt); border: 3px solid var(--border-card); border-radius: 14px;
-  padding: 24px; text-align: center; cursor: pointer; transition: all 0.25s;
-}
-.mode-card:hover { border-color: #667eea; background: var(--bg-card-hover); }
-.mode-card.selected { border-color: #667eea; background: var(--bg-card-sel); box-shadow: 0 0 20px rgba(102,126,234,0.25); }
-.mode-card .num { font-size: 48px; font-weight: 900; color: #667eea; }
-.mode-card .label { font-size: 16px; color: var(--text-secondary); margin-top: 6px; }
 
-.role-config { margin-top: 12px; }
-.role-section { margin-bottom: 14px; }
-.role-section-title { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 24px; border: 1px solid transparent; border-radius: var(--radius);
+  font-size: 15px; cursor: pointer; font-weight: 600; transition: all 0.25s var(--ease);
+  font-family: inherit; position: relative; overflow: hidden;
+  white-space: nowrap; letter-spacing: 0.02em;
+}
+.btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; filter: grayscale(0.3); }
+
+.btn-primary {
+  background: linear-gradient(135deg, #5b4a8a, #3d3070);
+  color: #e4dcc8; border-color: #6b5a9a;
+  box-shadow: 0 2px 12px rgba(90, 70, 140, 0.3);
+}
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 4px 20px rgba(90, 70, 140, 0.5);
+  background: linear-gradient(135deg, #6b5a9a, #4d4080);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #3a7050, #2a5a3a);
+  color: #c8e8d0; border-color: #4a8060;
+  box-shadow: 0 2px 12px rgba(50, 120, 70, 0.3);
+}
+.btn-success:hover:not(:disabled) {
+  box-shadow: 0 4px 20px rgba(50, 120, 70, 0.5);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #8a3a3a, #6a2020);
+  color: #e8c8c8; border-color: #9a4a4a;
+  box-shadow: 0 2px 12px rgba(150, 40, 40, 0.3);
+}
+.btn-danger:hover:not(:disabled) {
+  box-shadow: 0 4px 20px rgba(150, 40, 40, 0.5);
+}
+
+.btn-warn {
+  background: linear-gradient(135deg, #9a5a3a, #7a3a20);
+  color: #e8d0c0; border-color: #aa6a4a;
+  box-shadow: 0 2px 12px rgba(160, 70, 30, 0.3);
+}
+.btn-warn:hover:not(:disabled) {
+  box-shadow: 0 4px 20px rgba(160, 70, 30, 0.5);
+}
+
+.btn-dark {
+  background: var(--bg-input); color: var(--text-btn-dark);
+  border: 1px solid var(--border-strong);
+}
+.btn-dark:hover:not(:disabled) {
+  border-color: var(--text-muted);
+  background: var(--bg-card-hover);
+}
+
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: var(--radius-sm); }
+
+/* ---- Screen System ---- */
+.screen { display: none; animation: screenIn 0.35s var(--ease); }
+.screen.active { display: block; }
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   SETUP SCREEN
+   ============================================================ */
+.setup-title {
+  text-align: center; font-size: 32px; font-weight: 900;
+  background: linear-gradient(135deg, #b8860b, #d4a017, #8b4513);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 28px; letter-spacing: 6px;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 8px rgba(184,134,11,0.35));
+}
+body.light .setup-title {
+  background: linear-gradient(135deg, #8b0000, #b8650b, #7a3000);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 6px rgba(139,0,0,0.25));
+}
+
+.setup-section {
+  background: var(--bg-panel); border-radius: var(--radius-lg);
+  padding: 28px; margin-bottom: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  transition: border-color 0.3s var(--ease);
+}
+.setup-section h3 {
+  font-size: 18px; margin-bottom: 16px; color: var(--text-secondary);
+  display: flex; align-items: center; gap: 8px;
+}
+.setup-section h3::before {
+  content: ''; width: 3px; height: 18px; background: var(--accent);
+  border-radius: 2px; display: inline-block;
+}
+
+/* Mode Cards */
+.mode-cards { display: flex; gap: 20px; }
+.mode-card {
+  flex: 1; background: var(--bg-card-alt); border: 2px solid var(--border-card);
+  border-radius: var(--radius-lg); padding: 32px 24px; text-align: center;
+  cursor: pointer; transition: all 0.3s var(--ease); position: relative;
+}
+.mode-card::before {
+  content: ''; position: absolute; inset: -1px; border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(200,168,78,0.4), transparent 60%);
+  opacity: 0; transition: opacity 0.3s var(--ease); z-index: -1;
+}
+.mode-card:hover { border-color: var(--accent); background: var(--bg-card-hover); transform: translateY(-2px); }
+.mode-card:hover::before { opacity: 0.5; }
+.mode-card.selected {
+  border-color: var(--accent); background: var(--bg-card-sel);
+  box-shadow: 0 0 30px var(--accent-glow), inset 0 0 30px rgba(200,168,78,0.03);
+}
+.mode-card.selected::before { opacity: 1; }
+.mode-card .num {
+  font-size: 56px; font-weight: 900;
+  font-family: 'ZCOOL XiaoWei', serif;
+  background: linear-gradient(180deg, var(--accent), #a08030);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.mode-card .label { font-size: 16px; color: var(--text-secondary); margin-top: 8px; letter-spacing: 2px; }
+
+/* Role Config */
+.role-config { margin-top: 16px; }
+.role-section { margin-bottom: 16px; }
+.role-section-title {
+  font-size: 11px; color: var(--text-muted); margin-bottom: 8px;
+  text-transform: uppercase; letter-spacing: 3px; font-weight: 700;
+}
 .role-section-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .role-card {
   display: flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: 10px;
+  padding: 8px 16px; border-radius: 24px;
   background: var(--bg-card); border: 1px solid var(--border);
-  font-size: 14px; white-space: nowrap;
+  font-size: 14px; white-space: nowrap; transition: all 0.2s var(--ease);
 }
-.role-card .rc-icon { font-size: 20px; }
+.role-card .rc-icon { font-size: 18px; }
 .role-card .rc-count { font-weight: 700; color: var(--text-secondary); }
-.badge-toggle { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
-.tgl {
-  width: 48px; height: 26px; background: var(--toggle-bg); border-radius: 13px;
-  position: relative; cursor: pointer; transition: background 0.3s;
+
+.role-card.toggle {
+  cursor: pointer; font-weight: 600; transition: all 0.25s var(--ease);
 }
-.tgl.on { background: #667eea; }
+.role-card.toggle:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-card-hover);
+}
+.role-card.toggle.on {
+  border-color: var(--tc); color: var(--tc);
+  background: var(--tc-bg);
+  box-shadow: 0 0 16px var(--tc-glow);
+}
+
+.badge-toggle {
+  display: flex; align-items: center; gap: 14px; margin-top: 16px;
+  padding: 12px 16px; background: var(--bg-card); border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+/* Toggle Switch */
+.tgl {
+  width: 48px; height: 28px; background: var(--toggle-bg); border-radius: 14px;
+  position: relative; cursor: pointer; transition: all 0.3s var(--ease);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.tgl.on { background: #6b5a9a; box-shadow: 0 0 12px rgba(107,90,154,0.4); }
 .tgl::after {
   content: ''; position: absolute; top: 3px; left: 3px;
-  width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: left 0.3s;
+  width: 22px; height: 22px; background: var(--toggle-knob); border-radius: 50%;
+  transition: all 0.3s var(--ease-spring);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
-.tgl.on::after { left: 25px; }
+.tgl.on::after { left: 23px; }
 
-/* Assignment Screen */
-.assign-header { text-align: center; margin-bottom: 16px; }
-.assign-header h2 { font-size: 22px; }
+/* ============================================================
+   ASSIGNMENT SCREEN
+   ============================================================ */
+.assign-header { text-align: center; margin-bottom: 20px; }
+.assign-header h2 {
+  font-size: 24px; letter-spacing: 2px;
+}
+.assign-header p { color: var(--text-muted); font-size: 13px; margin-top: 6px; }
+
 .role-palette {
-  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px;
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  margin-bottom: 20px; padding: 16px;
+  background: var(--bg-panel); border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
 }
+
 .role-chip {
-  padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer;
-  border: 2px solid transparent; transition: all 0.2s; font-weight: 600;
-  user-select: none;
+  padding: 10px 18px; border-radius: 24px; font-size: 14px; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.25s var(--ease); font-weight: 600;
+  user-select: none; position: relative;
 }
-.role-chip:hover { transform: scale(1.05); }
-.role-chip.selected { border-color: #fff; transform: scale(1.08); box-shadow: 0 0 14px currentColor; }
+.role-chip:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.role-chip.selected {
+  border-color: #fff !important;
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 0 20px currentColor;
+  animation: chipPulse 2s infinite;
+}
+@keyframes chipPulse {
+  0%, 100% { box-shadow: 0 0 16px currentColor; }
+  50% { box-shadow: 0 0 28px currentColor; }
+}
 .role-chip .count { opacity: 0.7; font-size: 11px; }
-.number-grid { display: grid; gap: 12px; justify-content: center; }
-.number-grid.col9 { grid-template-columns: repeat(3, 80px); }
-.number-grid.col12 { grid-template-columns: repeat(4, 80px); }
+
+.number-grid { display: grid; gap: 14px; justify-content: center; }
+.number-grid.col9 { grid-template-columns: repeat(3, 90px); }
+.number-grid.col12 { grid-template-columns: repeat(4, 90px); }
+
 .num-card {
-  width: 80px; height: 90px; border-radius: 14px; display: flex;
-  flex-direction: column; align-items: center; justify-content: center;
-  cursor: pointer; background: var(--bg-card); border: 3px solid var(--border-card);
-  transition: all 0.2s; font-size: 28px; font-weight: 800; user-select: none;
-}
-.num-card:hover { border-color: var(--text-muted); }
-.num-card.assigned { border-color: var(--c); }
-.num-card .card-role { font-size: 11px; margin-top: 2px; color: var(--c); }
-
-/* Game Screen */
-.game-header {
-  display: flex; justify-content: space-between; align-items: center;
-  background: var(--bg-panel); border-radius: 14px; padding: 16px 22px;
-  margin-bottom: 14px; border: 1px solid var(--border);
-}
-.game-header .night-badge {
-  background: #667eea; padding: 6px 16px; border-radius: 20px;
-  font-weight: 700; font-size: 14px;
-}
-.game-header .phase-name { font-size: 18px; font-weight: 700; color: #f5576c; }
-.phase-indicator {
-  display: flex; gap: 6px; margin-bottom: 14px; justify-content: center;
-}
-.phase-dot {
-  padding: 6px 16px; border-radius: 16px; font-size: 12px; background: var(--bg-input);
-  color: var(--text-dim); font-weight: 600; transition: all 0.3s;
-}
-.phase-dot.done { background: #1a3a1a; color: #4caf50; }
-.phase-dot.current { background: #667eea; color: #fff; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
-
-.player-grid { display: grid; gap: 10px; justify-content: center; margin-bottom: 16px; }
-.player-grid.col9 { grid-template-columns: repeat(5, 70px); }
-.player-grid.col12 { grid-template-columns: repeat(6, 70px); }
-.p-card {
-  width: 70px; height: 88px; border-radius: 12px; display: flex;
+  width: 90px; height: 100px; border-radius: var(--radius-lg); display: flex;
   flex-direction: column; align-items: center; justify-content: center;
   cursor: pointer; background: var(--bg-card); border: 2px solid var(--border-card);
-  transition: all 0.2s; font-size: 22px; font-weight: 700; user-select: none; position: relative;
+  transition: all 0.25s var(--ease); font-size: 32px; font-weight: 800;
+  user-select: none; position: relative;
+  font-family: 'ZCOOL XiaoWei', serif;
 }
-.p-card:hover { border-color: var(--text-secondary); }
-.p-card.dead { opacity: 0.35; cursor: not-allowed; }
-.p-card.dead:hover { border-color: var(--border-card); }
-.p-card.target { border-color: #f5576c !important; box-shadow: 0 0 16px rgba(245,87,108,0.5); }
-.p-card.guarded { border-color: #2196F3 !important; box-shadow: 0 0 12px rgba(33,150,243,0.5); }
-.p-card.poisoned { border-color: #9c27b0 !important; box-shadow: 0 0 12px rgba(156,39,176,0.6); }
-.p-card.selected { border-color: #ff9800 !important; box-shadow: 0 0 14px rgba(255,152,0,0.5); }
-.p-card.blink {
-  animation: wolfBlink 0.6s infinite alternate;
-  border-color: #f44336 !important;
+.num-card::after {
+  content: ''; position: absolute; inset: 4px; border-radius: calc(var(--radius-lg) - 2px);
+  border: 1px solid rgba(255,255,255,0.03); pointer-events: none;
 }
-@keyframes wolfBlink { from { box-shadow: 0 0 8px rgba(244,67,54,0.4); } to { box-shadow: 0 0 22px rgba(244,67,54,0.9); } }
-.p-card .p-role-tag { font-size: 10px; margin-top: 1px; color: var(--c); }
-.p-card .badge-icon { position: absolute; top: -6px; right: -6px; font-size: 16px; }
+.num-card:hover {
+  border-color: var(--text-muted); transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.num-card.assigned {
+  border-color: var(--c); border-width: 2px;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--c) 30%, transparent);
+  background: color-mix(in srgb, var(--c) 8%, var(--bg-card));
+}
+.num-card .card-role {
+  font-size: 12px; margin-top: 2px; color: var(--c);
+  font-family: 'Microsoft YaHei', sans-serif; font-weight: 600;
+}
 
-.action-area {
-  background: var(--bg-panel); border-radius: 14px; padding: 20px; margin-bottom: 14px;
-  border: 1px solid var(--border); text-align: center;
+/* ============================================================
+   GAME SCREEN
+   ============================================================ */
+.game-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--bg-panel); border-radius: var(--radius-lg);
+  padding: 18px 24px; margin-bottom: 16px;
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm);
 }
-.action-prompt { font-size: 18px; margin-bottom: 14px; font-weight: 600; }
-.action-prompt .good-text { color: #4caf50; background: rgba(76,175,80,0.15); padding: 2px 8px; border-radius: 4px; }
-.action-prompt .bad-text { color: #f44336; background: rgba(244,67,54,0.15); padding: 2px 8px; border-radius: 4px; }
-.action-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.game-header .night-badge {
+  background: linear-gradient(135deg, #3d3070, #5b4a8a);
+  padding: 8px 20px; border-radius: 24px;
+  font-weight: 700; font-size: 14px; color: #e4dcc8;
+  box-shadow: 0 2px 12px rgba(60, 45, 110, 0.4);
+}
+.game-header .phase-name {
+  font-size: 20px; font-weight: 700;
+  font-family: 'ZCOOL XiaoWei', serif;
+  background: linear-gradient(135deg, #d4a0a0, #c8a84e);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Phase Indicator */
+.phase-indicator {
+  display: flex; gap: 4px; margin-bottom: 16px; justify-content: center;
+  align-items: center;
+}
+.phase-dot {
+  padding: 8px 18px; border-radius: 20px; font-size: 12px;
+  background: var(--bg-input); color: var(--text-dim);
+  font-weight: 600; transition: all 0.3s var(--ease);
+  border: 1px solid transparent; position: relative;
+}
+.phase-dot.done {
+  background: rgba(60, 120, 70, 0.15); color: #6aaa70;
+  border-color: rgba(60, 120, 70, 0.3);
+}
+.phase-dot.current {
+  background: linear-gradient(135deg, #5b4a8a, #3d3070);
+  color: #e4dcc8; border-color: #7b6aaa;
+  box-shadow: 0 0 16px rgba(90, 70, 140, 0.4);
+  animation: phasePulse 2s infinite;
+}
+@keyframes phasePulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(90, 70, 140, 0.4); }
+  50% { box-shadow: 0 0 24px rgba(90, 70, 140, 0.7); }
+}
+
+/* Player Grid */
+.player-grid { display: grid; gap: 10px; justify-content: center; margin-bottom: 18px; }
+.player-grid.col9 { grid-template-columns: repeat(5, 75px); }
+.player-grid.col12 { grid-template-columns: repeat(6, 75px); }
+
+.p-card {
+  width: 75px; height: 95px; border-radius: var(--radius); display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; background: var(--bg-card); border: 2px solid var(--border-card);
+  transition: all 0.25s var(--ease); font-size: 24px; font-weight: 700;
+  user-select: none; position: relative;
+  font-family: 'ZCOOL XiaoWei', serif;
+}
+.p-card::after {
+  content: ''; position: absolute; inset: 3px; border-radius: calc(var(--radius) - 1px);
+  border: 1px solid rgba(255,255,255,0.02); pointer-events: none;
+}
+.p-card:hover:not(.dead) {
+  border-color: var(--text-secondary); transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.p-card.dead {
+  opacity: 0.3; cursor: not-allowed; filter: grayscale(0.6);
+}
+.p-card.dead:hover { border-color: var(--border-card); }
+.p-card.target {
+  border-color: #e05050 !important;
+  box-shadow: 0 0 20px rgba(224, 80, 80, 0.5), inset 0 0 12px rgba(224, 80, 80, 0.08);
+}
+.p-card.guarded {
+  border-color: #4a90d9 !important;
+  box-shadow: 0 0 16px rgba(74, 144, 217, 0.45), inset 0 0 12px rgba(74, 144, 217, 0.06);
+}
+.p-card.poisoned {
+  border-color: #a040c0 !important;
+  box-shadow: 0 0 16px rgba(160, 64, 192, 0.5), inset 0 0 12px rgba(160, 64, 192, 0.06);
+}
+.p-card.selected {
+  border-color: #d4a040 !important;
+  box-shadow: 0 0 20px rgba(212, 160, 64, 0.5), inset 0 0 12px rgba(212, 160, 64, 0.06);
+  transform: translateY(-3px);
+}
+.p-card.blink {
+  animation: wolfBlink 0.7s infinite alternate;
+  border-color: #e04040 !important;
+}
+@keyframes wolfBlink {
+  from { box-shadow: 0 0 8px rgba(224, 64, 64, 0.3); }
+  to { box-shadow: 0 0 26px rgba(224, 64, 64, 0.8); }
+}
+.p-card .p-role-tag {
+  font-size: 10px; margin-top: 2px; color: var(--c);
+  font-family: 'Microsoft YaHei', sans-serif; font-weight: 600;
+}
+.p-card .badge-icon { position: absolute; top: -8px; right: -8px; font-size: 18px; filter: drop-shadow(0 2px 4px var(--accent-glow)); }
+
+/* Action Area */
+.action-area {
+  background: var(--bg-panel); border-radius: var(--radius-lg);
+  padding: 24px; margin-bottom: 16px;
+  border: 1px solid var(--border); text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.action-prompt { font-size: 18px; margin-bottom: 16px; font-weight: 600; line-height: 1.6; }
+.action-prompt .good-text {
+  color: #6aaa70; background: rgba(76, 150, 90, 0.12);
+  padding: 2px 10px; border-radius: 6px; font-weight: 700;
+}
+.action-prompt .bad-text {
+  color: #e06060; background: rgba(224, 70, 70, 0.12);
+  padding: 2px 10px; border-radius: 6px; font-weight: 700;
+}
+.action-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
 
 .result-toast {
-  margin-top: 12px; padding: 12px 18px; border-radius: 10px; font-size: 16px;
-  font-weight: 700; animation: fadeIn 0.3s;
+  margin-top: 14px; padding: 14px 20px; border-radius: var(--radius);
+  font-size: 16px; font-weight: 700;
+  animation: toastIn 0.35s var(--ease);
 }
-@keyframes fadeIn { from{opacity:0;transform:translateY(-8px);} to{opacity:1;transform:translateY(0);} }
-.result-toast.good { background: rgba(76,175,80,0.2); color: #4caf50; border: 1px solid #4caf50; }
-.result-toast.bad { background: rgba(244,67,54,0.2); color: #f44336; border: 1px solid #f44336; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.result-toast.good {
+  background: rgba(76, 150, 90, 0.12); color: #6aaa70;
+  border: 1px solid rgba(76, 150, 90, 0.3);
+}
+.result-toast.bad {
+  background: rgba(224, 70, 70, 0.12); color: #e06060;
+  border: 1px solid rgba(224, 70, 70, 0.3);
+}
 
-.side-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+/* Side Panels */
+.side-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .log-panel, .skill-panel {
-  background: var(--bg-panel); border-radius: 14px; padding: 16px; border: 1px solid var(--border);
-  max-height: 250px; overflow-y: auto;
+  background: var(--bg-panel); border-radius: var(--radius-lg);
+  padding: 18px; border: 1px solid var(--border);
+  max-height: 260px; overflow-y: auto;
+  box-shadow: var(--shadow-sm);
 }
-.log-panel h4, .skill-panel h4 { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
-.log-entry { font-size: 13px; padding: 4px 0; border-bottom: 1px solid var(--border-log); color: var(--text-log); }
-.skill-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--border-log); }
-.skill-status { font-weight: 600; font-size: 12px; padding: 2px 8px; border-radius: 10px; }
-.skill-status.available { background: rgba(76,175,80,0.2); color: #4caf50; }
-.skill-status.used { background: rgba(158,158,158,0.2); color: #999; }
-.skill-status.blocked { background: rgba(244,67,54,0.2); color: #f44336; }
+.log-panel h4, .skill-panel h4 {
+  font-size: 14px; color: var(--text-muted); margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+.log-entry {
+  font-size: 13px; padding: 5px 0;
+  border-bottom: 1px solid var(--border-log); color: var(--text-log);
+  transition: background 0.2s;
+}
+.log-entry:last-child { border-bottom: none; }
+.skill-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; padding: 6px 0;
+  border-bottom: 1px solid var(--border-log);
+}
+.skill-row:last-child { border-bottom: none; }
+.skill-status { font-weight: 600; font-size: 11px; padding: 3px 10px; border-radius: 12px; }
+.skill-status.available { background: rgba(76, 150, 90, 0.15); color: #6aaa70; }
+.skill-status.used { background: rgba(150, 150, 150, 0.12); color: #999; }
+.skill-status.blocked { background: rgba(224, 70, 70, 0.12); color: #e06060; }
 
+/* ============================================================
+   MODAL
+   ============================================================ */
 .modal-overlay {
-  display: none; position: fixed; top:0;left:0;right:0;bottom:0;
-  background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center;
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(2, 2, 10, 0.85); z-index: 100;
+  justify-content: center; align-items: center;
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
 }
-.modal-overlay.show { display: flex; }
+.modal-overlay.show { display: flex; animation: modalIn 0.3s var(--ease); }
+@keyframes modalIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 .modal-box {
-  background: var(--bg-panel); border-radius: 16px; padding: 28px; max-width: 480px;
-  width: 90%; border: 1px solid var(--border-strong); text-align: center;
+  background: var(--bg-panel); border-radius: var(--radius-xl);
+  padding: 32px; max-width: 500px; width: 92%;
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(100, 80, 160, 0.1);
+  text-align: center; animation: modalSlideIn 0.35s var(--ease-spring);
 }
-.modal-box h2 { margin-bottom: 16px; }
-.modal-box .death-list { font-size: 16px; margin: 12px 0; }
-.death-item { padding: 6px; margin: 4px 0; border-radius: 6px; }
-.death-item.wolf-kill { background: rgba(244,67,54,0.15); color: #f5576c; }
-.death-item.poison { background: rgba(156,39,176,0.15); color: #ce93d8; }
-.death-item.saved { background: rgba(76,175,80,0.15); color: #4caf50; }
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-box h2 {
+  margin-bottom: 18px; font-size: 22px; letter-spacing: 2px;
+}
+.modal-box .death-list { font-size: 16px; margin: 14px 0; }
+.death-item {
+  padding: 10px 14px; margin: 6px 0; border-radius: var(--radius);
+  font-weight: 600; transition: background 0.2s;
+}
+.death-item.wolf-kill {
+  background: rgba(224, 70, 70, 0.12); color: #e08080;
+  border-left: 3px solid #c04040;
+}
+.death-item.poison {
+  background: rgba(160, 64, 192, 0.12); color: #c090e0;
+  border-left: 3px solid #9040b0;
+}
+.death-item.saved {
+  background: rgba(76, 150, 90, 0.12); color: #80c090;
+  border-left: 3px solid #4a9050;
+}
 
+/* Shooter Buttons */
 .shooter-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .shooter-btn {
-  padding: 6px 14px; border-radius: 16px; font-size: 13px; cursor: pointer;
-  border: 2px solid var(--border-shooter); background: var(--bg-input); color: var(--text-secondary); transition: all 0.2s;
-  font-family: inherit;
+  padding: 8px 16px; border-radius: 20px; font-size: 13px; cursor: pointer;
+  border: 2px solid var(--border-shooter); background: var(--bg-input);
+  color: var(--text-secondary); transition: all 0.25s var(--ease);
+  font-family: inherit; font-weight: 600;
 }
-.shooter-btn:hover { border-color: var(--text-muted); }
-.shooter-btn.sel { border-color: #f5576c; color: #f5576c; background: rgba(245,87,108,0.1); }
+.shooter-btn:hover { border-color: var(--text-muted); background: var(--bg-card-hover); }
+.shooter-btn.sel {
+  border-color: #e05050; color: #e06060;
+  background: rgba(224, 80, 80, 0.1);
+}
 
+/* ============================================================
+   THEME TOGGLE
+   ============================================================ */
 .theme-btn {
-  position: fixed; top: 12px; right: 16px; z-index: 200;
-  width: 40px; height: 40px; border-radius: 50%;
+  position: fixed; top: 16px; right: 20px; z-index: 200;
+  width: 42px; height: 42px; border-radius: 50%;
   border: 2px solid var(--border-strong); background: var(--bg-panel);
-  font-size: 20px; cursor: pointer; transition: all 0.25s;
+  font-size: 20px; cursor: pointer; transition: all 0.3s var(--ease);
   display: flex; align-items: center; justify-content: center;
-  line-height: 1;
+  line-height: 1; box-shadow: var(--shadow-md);
 }
-.theme-btn:hover { transform: scale(1.1); border-color: var(--text-muted); }
+.theme-btn:hover {
+  transform: scale(1.12); border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
 
-@media (max-width: 600px) {
-  .mode-cards { flex-direction: column; }
-  .number-grid.col9, .number-grid.col12 { grid-template-columns: repeat(3, 70px); }
-  .player-grid.col9 { grid-template-columns: repeat(3, 65px); }
-  .player-grid.col12 { grid-template-columns: repeat(4, 60px); }
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  #app { padding: 14px; }
+  .setup-title { font-size: 26px; letter-spacing: 4px; }
+  .mode-cards { gap: 14px; }
+  .mode-card { padding: 24px 16px; }
+  .mode-card .num { font-size: 44px; }
+
+  .number-grid.col9, .number-grid.col12 { grid-template-columns: repeat(3, 80px); }
+  .player-grid.col9 { grid-template-columns: repeat(3, 70px); }
+  .player-grid.col12 { grid-template-columns: repeat(4, 65px); }
+
   .side-panels { grid-template-columns: 1fr; }
+  .num-card { width: 80px; height: 90px; font-size: 28px; }
+  .p-card { width: 65px; height: 85px; font-size: 22px; }
+
+  .game-header { flex-wrap: wrap; gap: 8px; padding: 14px 16px; }
+  .game-header .phase-name { font-size: 17px; }
+
+  .theme-btn { top: 10px; right: 10px; width: 36px; height: 36px; font-size: 17px; }
+}
+
+@media (max-width: 400px) {
+  .setup-title { font-size: 22px; letter-spacing: 3px; }
+  .mode-cards { flex-direction: column; }
+  .mode-card { padding: 20px; }
+  .mode-card .num { font-size: 38px; }
+
+  .number-grid.col9, .number-grid.col12 { grid-template-columns: repeat(3, 70px); gap: 10px; }
+  .player-grid.col9 { grid-template-columns: repeat(3, 60px); }
+  .player-grid.col12 { grid-template-columns: repeat(3, 60px); }
+
   .num-card { width: 70px; height: 80px; font-size: 24px; }
   .p-card { width: 60px; height: 78px; font-size: 20px; }
-  .theme-btn { top: 8px; right: 8px; width: 34px; height: 34px; font-size: 17px; }
+
+  .game-header { padding: 12px; }
+  .game-header .night-badge { padding: 6px 14px; font-size: 12px; }
+  .game-header .phase-name { font-size: 15px; }
+
+  .action-area { padding: 16px; }
+  .action-prompt { font-size: 16px; }
+
+  .role-palette { padding: 12px; gap: 6px; }
+  .role-chip { padding: 8px 14px; font-size: 12px; }
+
+  .setup-section { padding: 18px; }
 }
 </style>
 </head>
@@ -287,10 +710,10 @@ body {
     <h3>选择游戏模式</h3>
     <div class="mode-cards" id="modeCards">
       <div class="mode-card" data-mode="9">
-        <div class="num">9</div><div class="label">人局</div>
+        <div class="num">9</div><div class="label">人 局</div>
       </div>
       <div class="mode-card" data-mode="12">
-        <div class="num">12</div><div class="label">人局</div>
+        <div class="num">12</div><div class="label">人 局</div>
       </div>
     </div>
   </div>
@@ -303,9 +726,9 @@ body {
       <span id="badgeLabel" style="color:var(--text-muted);">关闭</span>
     </div>
   </div>
-  <div style="text-align:center;margin-top:18px;">
+  <div style="text-align:center;margin-top:22px;">
     <button class="btn btn-primary" style="font-size:18px;padding:14px 48px;" onclick="startAssignment()">开始分配身份</button>
-    <button class="btn btn-dark" style="font-size:14px;padding:10px 20px;margin-left:10px;" onclick="showHistory()">📋 历史记录</button>
+    <button class="btn btn-dark" style="font-size:14px;padding:10px 20px;margin-left:12px;" onclick="showHistory()">📋 历史记录</button>
   </div>
 </div>
 
@@ -317,10 +740,10 @@ body {
   </div>
   <div class="role-palette" id="rolePalette"></div>
   <div class="number-grid" id="assignGrid"></div>
-  <div style="text-align:center;margin-top:18px;">
-    <div id="assignProgress" style="color:var(--text-muted);font-size:14px;margin-bottom:10px;"></div>
+  <div style="text-align:center;margin-top:22px;">
+    <div id="assignProgress" style="color:var(--text-muted);font-size:14px;margin-bottom:12px;"></div>
     <button class="btn btn-success" id="btnConfirmAssign" style="font-size:16px;padding:12px 36px;" disabled onclick="confirmAssignment()">确认分配，进入游戏</button>
-    <button class="btn btn-dark" style="margin-left:10px;" onclick="backToSetup()">返回设置</button>
+    <button class="btn btn-dark" style="margin-left:12px;" onclick="backToSetup()">返回设置</button>
   </div>
 </div>
 
@@ -329,11 +752,11 @@ body {
   <div class="game-header">
     <span class="night-badge" id="nightBadge">第1夜</span>
     <span class="phase-name" id="phaseName">身份确认</span>
-    <button class="btn btn-dark" style="padding:6px 14px;font-size:12px;" onclick="backToSetup()">重新开始</button>
+    <button class="btn btn-dark" style="padding:6px 16px;font-size:12px;" onclick="backToSetup()">重新开始</button>
   </div>
   <div class="phase-indicator" id="phaseIndicator"></div>
-  <div style="display:flex;justify-content:center;margin-bottom:10px;">
-    <span id="sheriffBadge" style="font-size:12px;color:#ff9800;"></span>
+  <div style="display:flex;justify-content:center;margin-bottom:12px;">
+    <span id="sheriffBadge" style="font-size:12px;color:#c8a84e;font-weight:600;"></span>
   </div>
   <div class="player-grid" id="playerGrid"></div>
   <div class="action-area" id="actionArea"></div>
@@ -396,7 +819,8 @@ function getVillagerCount() {
 let state = {
   mode: 9, badgeRule: false, screen: 'setup', night: 0, isDay: false,
   wolfBossType: 'wolfking', guardianType: 'guard',
-  players: [], badgeHolder: null, log: [],
+  players: [], badgeHolder: null, badgeLocked: false, badgeTornUp: false, badgeEverAssigned: false, badgeLastHolder: null,
+  log: [],
   phaseOrder: [], phaseIdx: 0,
   wolfTarget: null, seerTarget: null, seerResult: null, guardTarget: null,
   witchUsedAntidote: false, witchPoisonTarget: null,
@@ -440,7 +864,7 @@ function saveState() {
   const s = {
     mode: state.mode, badgeRule: state.badgeRule, night: state.night, isDay: state.isDay,
     wolfBossType: state.wolfBossType, guardianType: state.guardianType,
-    players: state.players, badgeHolder: state.badgeHolder, log: state.log,
+    players: state.players, badgeHolder: state.badgeHolder, badgeLocked: state.badgeLocked, badgeTornUp: state.badgeTornUp, badgeEverAssigned: state.badgeEverAssigned, badgeLastHolder: state.badgeLastHolder, log: state.log,
     phaseOrder: state.phaseOrder, phaseIdx: state.phaseIdx,
     wolfTarget: state.wolfTarget, seerTarget: state.seerResult !== null ? state.seerTarget : null,
     guardTarget: state.guardTarget,
@@ -556,6 +980,8 @@ function showHistoryDetail(idx) {
       let label = entry.msg.replace(/=== | ===/g, '').replace(/^身份分配完成，进入/, '').replace(/^进入/, '');
       currentRound = { label, events: [] };
     } else if (currentRound) {
+      // Skip detailed badge transfer logs in history (keep only milestones)
+      if (entry.msg.includes('死亡，警徽待转移')) return;
       currentRound.events.push(entry.msg);
     }
   });
@@ -693,6 +1119,10 @@ function startAssignment() {
   state.night = 0;
   state.log = [];
   state.badgeHolder = null;
+  state.badgeLocked = false;
+  state.badgeTornUp = false;
+  state.badgeEverAssigned = false;
+  state.badgeLastHolder = null;
   resetNightState();
   showScreen('assign');
   renderAssignment();
@@ -773,6 +1203,10 @@ function confirmAssignment() {
   state.night = 1;
   state.log = [];
   state.badgeHolder = null;
+  state.badgeLocked = false;
+  state.badgeTornUp = false;
+  state.badgeEverAssigned = false;
+  state.badgeLastHolder = null;
   resetNightState();
   showScreen('game');
   buildPhaseOrder();
@@ -1056,7 +1490,9 @@ function renderLog() {
 
 function renderSheriffBadge() {
   const el = $('sheriffBadge');
-  if (state.badgeRule && state.badgeHolder) {
+  if (state.badgeRule && state.badgeTornUp) {
+    el.textContent = `⭐ 警徽已被撕毁`;
+  } else if (state.badgeRule && state.badgeHolder) {
     el.textContent = `⭐ 警徽持有者: ${state.badgeHolder}号`;
   } else if (state.badgeRule) {
     el.textContent = `⭐ 警徽尚未分配（请在白天点击号码分配）`;
@@ -1087,11 +1523,10 @@ function onPlayerClick(n) {
       wolfSelfDestructConfirm(n);
       return;
     }
-    // Badge assignment/reassignment: click a living player to assign or reassign
-    if (state.badgeRule) {
+    // Badge assignment: only when badge not locked and not torn up
+    if (state.badgeRule && !state.badgeLocked && !state.badgeTornUp) {
       if (!p.isAlive) return;
-      if (state.badgeHolder === n) return; // Already has badge
-      assignBadge(n);
+      showBadgeAssignConfirm(n);
       return;
     }
     // Normal mode: toggle selection
@@ -1463,9 +1898,23 @@ function renderDayPanel() {
   // --- Normal day mode ---
   let html = `<div class="action-prompt">☀️ 第${state.night}天 — 白天阶段</div>`;
 
-  // Badge assignment prompt
-  if (state.badgeRule && !state.badgeHolder) {
-    html += `<div style="margin:8px 0;padding:10px;background:rgba(255,152,0,0.1);border:1px solid #ff9800;border-radius:8px;color:#ff9800;font-weight:600;">⭐ 请点击存活号码牌分配警徽</div>`;
+  // Badge assignment prompt (not locked, not torn up, no holder)
+  if (state.badgeRule && !state.badgeLocked && !state.badgeTornUp && !state.badgeHolder) {
+    html += `<div style="margin:8px 0;padding:10px;background:rgba(200,168,78,0.1);border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-weight:600;">`;
+    if (state.badgeEverAssigned) {
+      html += `⭐ 警徽待转移 — 点击存活号码牌重新分配，或撕毁警徽`;
+    } else {
+      html += `⭐ 请点击存活号码牌分配警徽`;
+    }
+    html += `</div>`;
+    if (state.badgeEverAssigned) {
+      html += `<div class="action-btns" style="margin:6px 0;"><button class="btn btn-warn btn-sm" onclick="showTearUpBadgeConfirm()">📛 撕毁警徽</button></div>`;
+    }
+  }
+
+  // Badge holder (locked)
+  if (state.badgeRule && state.badgeHolder && state.badgeLocked) {
+    html += `<div style="margin:6px 0;padding:8px 14px;background:var(--accent-bg);border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-size:14px;font-weight:600;">⭐ 警徽持有者: ${state.badgeHolder}号 ${roleName(getPlayer(state.badgeHolder).role)}</div>`;
   }
 
   if (daySelectedTarget) {
@@ -1489,10 +1938,6 @@ function renderDayPanel() {
   }
   html += `<button class="shooter-btn" onclick="wolfSelfDestruct()">🐺 狼人自爆</button>`;
   html += `</div></div>`;
-
-  if (state.badgeRule && state.badgeHolder) {
-    html += `<div style="margin:6px 0;font-size:13px;">⭐ 警徽持有者: <span style="color:#ff9800;">${state.badgeHolder}号</span></div>`;
-  }
 
   html += `<div class="action-btns" style="margin-top:16px;">
     <button class="btn btn-primary" onclick="startNextNight()">🌙 进入第${state.night+1}夜</button>
@@ -1631,6 +2076,8 @@ function buildGameSummary() {
       label = label.replace(/^身份分配完成，进入/, '').replace(/^进入/, '');
       currentRound = { label, events: [] };
     } else if (currentRound) {
+      // Skip detailed badge transfer logs in history (keep only milestones)
+      if (entry.msg.includes('死亡，警徽待转移')) return;
       currentRound.events.push(entry.msg);
     }
   });
@@ -1685,14 +2132,62 @@ function showGameSummary(winner) {
 
 function handleBadgeTransfer(deadPlayer) {
   if (state.badgeRule && state.badgeHolder === deadPlayer.number) {
+    state.badgeLastHolder = state.badgeHolder;
     state.badgeHolder = null;
-    addLog(`警徽持有者${deadPlayer.number}号死亡，警徽待转移`);
+    state.badgeLocked = false;
+    addLog(`${deadPlayer.number}号${roleName(deadPlayer.role)}死亡，警徽待转移`);
   }
 }
 
-function assignBadge(n) {
+function showBadgeAssignConfirm(n) {
+  const modal = $('nightModal');
+  const content = $('nightModalContent');
+  const p = getPlayer(n);
+  content.innerHTML = `
+    <h2>⭐ 分配警徽</h2>
+    <div style="padding:20px 0;">
+      <div style="font-size:18px;margin-bottom:8px;">确认 <b style="color:var(--accent);">${n}号 ${roleName(p.role)}</b> 获得警徽吗？</div>
+      <div style="color:var(--text-muted);font-size:13px;">分配后，直至该玩家被淘汰前不可更改</div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button class="btn btn-primary" onclick="confirmBadgeAssign(${n})">✅ 确认分配</button>
+      <button class="btn btn-dark" onclick="$('nightModal').classList.remove('show')">取消</button>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function confirmBadgeAssign(n) {
+  $('nightModal').classList.remove('show');
   state.badgeHolder = n;
-  addLog(n ? `警徽分配给${n}号` : '警徽被移除');
+  state.badgeLocked = true;
+  state.badgeEverAssigned = true;
+  addLog(`${n}号${roleName(getPlayer(n).role)}获得警徽`);
+  renderGame();
+}
+
+function showTearUpBadgeConfirm() {
+  const modal = $('nightModal');
+  const content = $('nightModalContent');
+  content.innerHTML = `
+    <h2>⭐ 撕毁警徽</h2>
+    <div style="padding:20px 0;">
+      <div style="font-size:18px;margin-bottom:8px;">确认撕毁警徽吗？</div>
+      <div style="color:var(--text-muted);font-size:13px;">撕毁后本局游戏不再使用警徽</div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button class="btn btn-danger" onclick="confirmTearUpBadge()">确认撕毁</button>
+      <button class="btn btn-dark" onclick="$('nightModal').classList.remove('show')">取消</button>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function confirmTearUpBadge() {
+  $('nightModal').classList.remove('show');
+  state.badgeTornUp = true;
+  state.badgeHolder = null;
+  state.badgeLocked = false;
+  const prev = getPlayer(state.badgeLastHolder);
+  addLog(`${state.badgeLastHolder}号${prev ? roleName(prev.role) : ''}撕毁警徽`);
   renderGame();
 }
 
@@ -1767,6 +2262,10 @@ function restoreGame() {
   state.guardianType = saved.guardianType;
   state.players = saved.players;
   state.badgeHolder = saved.badgeHolder;
+  state.badgeLocked = saved.badgeLocked || false;
+  state.badgeTornUp = saved.badgeTornUp || false;
+  state.badgeEverAssigned = saved.badgeEverAssigned || false;
+  state.badgeLastHolder = saved.badgeLastHolder || null;
   state.log = saved.log;
   state.phaseOrder = saved.phaseOrder;
   state.phaseIdx = saved.phaseIdx;
