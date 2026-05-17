@@ -26,13 +26,22 @@ start "" "E:\First-Claude Code\Werewolf-judge\werewolf-judge.html"
 
 | 字段 | 说明 |
 |---|---|
-| `mode` | 9 或 12 人局 |
-| `badgeRule` | 警徽规则开关（仅12人） |
-| `wolfBossType` / `guardianType` | 12人局狼王类型（wolfking/whitewolf）和守卫类型（guard/fool） |
-| `players[]` | 每个玩家：`{number, role, isAlive, antidoteUsed, poisonUsed, canShoot, lastGuarded, guardedThisNight, exploded}` |
+| `mode` | 9 / 10 / 11 / 12 人局 |
+| `badgeRule` | 警徽规则开关（10/11/12人可用，9人不可用） |
+| `wolfBossType` / `guardianType` | 12人局狼王类型（wolfking/whitewolf）和守卫类型（guard/fool）；11人局固定愚者（fool） |
+| `players[]` | 每个玩家：`{number, role, isAlive, antidoteUsed, poisonUsed, canShoot, lastGuarded, guardedThisNight, exploded, foolRevealed}` |
 | `night` | 当前夜晚编号（从1开始） |
 | `phaseOrder` / `phaseIdx` | 夜晚行动阶段队列和当前位置 |
 | `badgeHolder` / `badgeLocked` / `badgeTornUp` / `badgeEverAssigned` / `badgeLastHolder` | 警徽系统状态（见下方警徽系统章节） |
+
+各模式角色构成（由 `getRoleConfig()` 返回，平民数自动补足）：
+
+| 模式 | 狼人 | 特殊狼 | 预言家 | 女巫 | 猎人 | 守卫/愚者 | 平民 |
+|------|------|--------|--------|------|------|-----------|------|
+| 9人 | 3 | — | 1 | 1 | 1 | — | 3 |
+| 10人 | 3 | — | 1 | 1 | 1 | — | 4 |
+| 11人 | 4 | — | 1 | 1 | 1 | 愚者×1 | 3 |
+| 12人 | 3 | 狼王/白狼王×1 | 1 | 1 | 1 | 守卫/愚者×1 | 4 |
 
 ### 夜晚行动阶段
 
@@ -66,13 +75,28 @@ start "" "E:\First-Claude Code\Werewolf-judge\werewolf-judge.html"
 4. **锁定期**：`badgeLocked=true` 期间点击号码正常进入投票选择，不会误触警徽变更
 5. **历史记录**：`buildGameSummary()` 过滤掉「死亡，警徽待转移」过渡日志，只保留获得/撕毁里程碑
 
+### 愚者翻牌系统
+
+愚者被投票放逐时不死亡，而是「翻牌」亮明身份：
+
+- `player.foolRevealed` — 标记愚者已翻牌（初始 `false`，放逐时设为 `true`）
+- 翻牌后：角色保持愚者（不变成平民），`isAlive` 保持 `true`
+- 视觉：`.p-card.fool-revealed` — 半透明 + 灰蓝边框 + 右上角「翻牌」标签
+- 交互限制（在 `onPlayerClick()` 中处理）：
+  - 白天正常投票 → 不可选中
+  - 猎人开枪 → 不可选中
+  - 狼王/白狼王开枪、狼人夜杀、女巫毒药 → 均可选中
+- 翻牌愚者被击杀后正常死亡（`isAlive = false`，`.dead` 覆盖 `.fool-revealed` 样式）
+- 翻牌愚者仍计入神职存活数（`aliveGods()` 统计 `role!=='villager'`）
+- 旧存档兼容：`restoreGame()` 为缺失 `foolRevealed` 的玩家自动补 `false`
+
 ### 关键函数职责
 
 - `updateRoleConfig()` — 渲染设置界面身份卡片 + 12p切换卡片
 - `getRoleConfig()` — 返回当前模式的实际角色列表（切换选择已展开）
 - `renderAssignment()` — 渲染身份分配界面（平民不在调色板，自动填充）
 - `confirmAssignment()` — 确认分配，未分配号码自动变平民
-- `onPlayerClick(n)` — 全局点击分发（优先级：deathShoot → pickWolf → badge → 正常投票）
+- `onPlayerClick(n)` — 全局点击分发（优先级：deathShoot → pickWolf → badge → 正常投票）。deathShoot 模式中猎人不可选中翻牌愚者，狼王/白狼王可选中。正常投票模式中不可选中翻牌愚者
 - `nextPhase()` — 阶段推进，记录日志，预判屠边，调用 `checkWinCondition()`
 - `resolveNight()` — 夜晚结算：守卫/解药/毒药/同守同救逻辑
 - `checkWinCondition()` — 屠边判定（狼人全灭→好人胜，神职全灭/平民全灭→狼人胜）
@@ -117,7 +141,21 @@ start "" "E:\First-Claude Code\Werewolf-judge\werewolf-judge.html"
 | `--accent` | `#c8a84e` | `#a08030` | 古铜金强调色 |
 | `--toggle-bg` | `#2a2a4a` | `#c0b898` | 开关背景 |
 
-角色/状态语义色（如 `#f44336` 狼人、`#4caf50` 好人）保持不变，不纳入主题变量。
+角色语义色定义在 `ROLE_META` 中，不纳入主题变量：
+
+| 角色 | 颜色 | 说明 |
+|------|------|------|
+| 平民 | `#4caf50` | 绿色 |
+| 预言家 | `#00acc1` | 天青蓝（teal） |
+| 女巫 | `#9c27b0` | 紫色 |
+| 猎人 | `#ff9800` | 橙色 |
+| 守卫 | `#2196f3` | 材质蓝 |
+| 愚者 | `#607d8b` | 灰蓝 |
+| 狼人 | `#f44336` | 红色 |
+| 狼王 | `#d32f2f` | 深红 |
+| 白狼王 | `#b71c1c` | 暗红 |
+
+颜色通过 `roleColor()` 函数获取，卡片通过 `style="--c:<color>"` + CSS `color-mix()` 实现语义着色。
 
 ### 字体
 

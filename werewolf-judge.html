@@ -374,6 +374,8 @@ body.light .setup-title {
 
 .number-grid { display: grid; gap: 14px; justify-content: center; }
 .number-grid.col9 { grid-template-columns: repeat(3, 90px); }
+.number-grid.col10 { grid-template-columns: repeat(5, 90px); }
+.number-grid.col11 { grid-template-columns: repeat(4, 90px); }
 .number-grid.col12 { grid-template-columns: repeat(4, 90px); }
 
 .num-card {
@@ -454,6 +456,8 @@ body.light .setup-title {
 /* Player Grid */
 .player-grid { display: grid; gap: 10px; justify-content: center; margin-bottom: 18px; }
 .player-grid.col9 { grid-template-columns: repeat(5, 75px); }
+.player-grid.col10 { grid-template-columns: repeat(5, 75px); }
+.player-grid.col11 { grid-template-columns: repeat(6, 75px); }
 .player-grid.col12 { grid-template-columns: repeat(6, 75px); }
 
 .p-card {
@@ -476,6 +480,23 @@ body.light .setup-title {
   opacity: 0.3; cursor: not-allowed; filter: grayscale(0.6);
 }
 .p-card.dead:hover { border-color: var(--border-card); }
+.p-card.fool-revealed {
+  opacity: 0.5;
+  border-color: #607d8b;
+  box-shadow: 0 0 18px rgba(96, 125, 139, 0.45), inset 0 0 12px rgba(96, 125, 139, 0.06);
+}
+.p-card.fool-revealed::after {
+  content: '翻牌'; position: absolute; top: 4px; right: 6px;
+  font-size: 9px; color: #607d8b; font-weight: 700;
+  font-family: 'Microsoft YaHei', sans-serif;
+  border: none;
+}
+.p-card.fool-revealed .badge-icon { opacity: 0.5; }
+.p-card.fool-revealed:hover {
+  border-color: #607d8b;
+  transform: none;
+  box-shadow: 0 0 18px rgba(96, 125, 139, 0.45);
+}
 .p-card.target {
   border-color: #e05050 !important;
   box-shadow: 0 0 20px rgba(224, 80, 80, 0.5), inset 0 0 12px rgba(224, 80, 80, 0.08);
@@ -658,8 +679,10 @@ body.light .setup-title {
   .mode-card { padding: 24px 16px; }
   .mode-card .num { font-size: 44px; }
 
-  .number-grid.col9, .number-grid.col12 { grid-template-columns: repeat(3, 80px); }
+  .number-grid.col9, .number-grid.col10, .number-grid.col11, .number-grid.col12 { grid-template-columns: repeat(3, 80px); }
   .player-grid.col9 { grid-template-columns: repeat(3, 70px); }
+  .player-grid.col10 { grid-template-columns: repeat(5, 60px); }
+  .player-grid.col11 { grid-template-columns: repeat(4, 65px); }
   .player-grid.col12 { grid-template-columns: repeat(4, 65px); }
 
   .side-panels { grid-template-columns: 1fr; }
@@ -678,8 +701,10 @@ body.light .setup-title {
   .mode-card { padding: 20px; }
   .mode-card .num { font-size: 38px; }
 
-  .number-grid.col9, .number-grid.col12 { grid-template-columns: repeat(3, 70px); gap: 10px; }
+  .number-grid.col9, .number-grid.col10, .number-grid.col11, .number-grid.col12 { grid-template-columns: repeat(3, 70px); gap: 10px; }
   .player-grid.col9 { grid-template-columns: repeat(3, 60px); }
+  .player-grid.col10 { grid-template-columns: repeat(5, 54px); }
+  .player-grid.col11 { grid-template-columns: repeat(4, 60px); }
   .player-grid.col12 { grid-template-columns: repeat(3, 60px); }
 
   .num-card { width: 70px; height: 80px; font-size: 24px; }
@@ -711,6 +736,12 @@ body.light .setup-title {
     <div class="mode-cards" id="modeCards">
       <div class="mode-card" data-mode="9">
         <div class="num">9</div><div class="label">人 局</div>
+      </div>
+      <div class="mode-card" data-mode="10">
+        <div class="num">10</div><div class="label">人 局</div>
+      </div>
+      <div class="mode-card" data-mode="11">
+        <div class="num">11</div><div class="label">人 局</div>
       </div>
       <div class="mode-card" data-mode="12">
         <div class="num">12</div><div class="label">人 局</div>
@@ -778,8 +809,8 @@ body.light .setup-title {
 // ===========================
 const ROLE_META = {
   villager:   { name:'平民',   faction:'good', color:'#4caf50', icon:'👤' },
-  seer:       { name:'预言家', faction:'good', color:'#9c27b0', icon:'🔮' },
-  witch:      { name:'女巫',   faction:'good', color:'#e91e63', icon:'🧪' },
+  seer:       { name:'预言家', faction:'good', color:'#00acc1', icon:'🔮' },
+  witch:      { name:'女巫',   faction:'good', color:'#9c27b0', icon:'🧪' },
   hunter:     { name:'猎人',   faction:'good', color:'#ff9800', icon:'🏹' },
   guard:      { name:'守卫',   faction:'good', color:'#2196f3', icon:'🛡️' },
   fool:       { name:'愚者',   faction:'good', color:'#607d8b', icon:'🎭' },
@@ -796,6 +827,21 @@ function getRoleConfig() {
       { role:'seer', count:1 },
       { role:'witch', count:1 },
       { role:'hunter', count:1 },
+    ];
+  } else if (state.mode === 10) {
+    return [
+      { role:'werewolf', count:3 },
+      { role:'seer', count:1 },
+      { role:'witch', count:1 },
+      { role:'hunter', count:1 },
+    ];
+  } else if (state.mode === 11) {
+    return [
+      { role:'werewolf', count:4 },
+      { role:'seer', count:1 },
+      { role:'witch', count:1 },
+      { role:'hunter', count:1 },
+      { role:'fool', count:1 },
     ];
   } else {
     return [
@@ -1090,7 +1136,7 @@ function updateRoleConfig() {
 
   config.innerHTML = html;
 
-  badgeTgl.style.display = state.mode === 12 ? 'flex' : 'none';
+  badgeTgl.style.display = (state.mode === 9) ? 'none' : 'flex';
   if (state.mode === 9) {
     state.badgeRule = false;
     $('badgeSwitch').classList.remove('on');
@@ -1198,6 +1244,7 @@ function confirmAssignment() {
       lastGuarded: null,
       guardedThisNight: false,
       exploded: false,
+      foolRevealed: false,
     });
   }
   state.night = 1;
@@ -1292,6 +1339,7 @@ function renderPlayerGrid() {
   grid.innerHTML = state.players.map(p=>{
     let cls = '';
     if (!p.isAlive) cls += ' dead';
+    if (p.foolRevealed && p.isAlive) cls += ' fool-revealed';
     if (p.number === state.wolfTarget) cls += ' target';
     if (p.guardedThisNight) cls += ' guarded';
     if (p.number === state.witchPoisonTarget) cls += ' poisoned';
@@ -1514,6 +1562,10 @@ function onPlayerClick(n) {
     // Death shoot mode: click to select target and execute
     if (dayMode === 'deathShoot') {
       if (!p.isAlive) { showMessage('目标已死亡'); return; }
+      if (p.foolRevealed && deathShootInfo && deathShootInfo.role === 'hunter') {
+        showMessage('愚者已翻牌，不能被猎人开枪选中');
+        return;
+      }
       executeDeathShoot(n);
       return;
     }
@@ -1530,7 +1582,7 @@ function onPlayerClick(n) {
       return;
     }
     // Normal mode: toggle selection
-    if (!p.isAlive) return;
+    if (!p.isAlive || p.foolRevealed) return;
     daySelectedTarget = (daySelectedTarget === n) ? null : n;
     renderPlayerGrid();
     renderActionArea();
@@ -2199,8 +2251,10 @@ function voteOut() {
   if (!p || !p.isAlive) { showMessage('该玩家已死亡'); return; }
 
   if (p.role === 'fool') {
-    addLog(`${n}号${roleName(p.role)}被投票放逐，但愚者豁免死亡（仅此一次）`);
-    p.role = 'villager';
+    if (p.foolRevealed) { showMessage('愚者已翻牌，不能再次被投票放逐'); return; }
+    p.foolRevealed = true;
+    addLog(`${n}号${roleName(p.role)}被投票放逐，愚者翻牌亮明身份，存活但失去投票资格`);
+    daySelectedTarget = null;
     renderGame();
     return;
   }
@@ -2261,6 +2315,7 @@ function restoreGame() {
   state.wolfBossType = saved.wolfBossType;
   state.guardianType = saved.guardianType;
   state.players = saved.players;
+  state.players.forEach(p => { if (p.foolRevealed === undefined) p.foolRevealed = false; });
   state.badgeHolder = saved.badgeHolder;
   state.badgeLocked = saved.badgeLocked || false;
   state.badgeTornUp = saved.badgeTornUp || false;
