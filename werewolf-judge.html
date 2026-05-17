@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>狼人杀法官助手</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  background: #0d0d1a;
+  color: #e0e0e0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#app { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+.btn {
+  display: inline-block; padding: 10px 22px; border: none; border-radius: 8px;
+  font-size: 15px; cursor: pointer; font-weight: 600; transition: all 0.2s;
+  font-family: inherit;
+}
+.btn:hover { transform: translateY(-1px); opacity: 0.9; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+.btn-success { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #111; }
+.btn-danger { background: linear-gradient(135deg, #f5576c, #e53935); color: #fff; }
+.btn-warn { background: linear-gradient(135deg, #f093fb, #f5576c); color: #fff; }
+.btn-dark { background: #2a2a3e; color: #ccc; border: 1px solid #444; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+.role-card.toggle { cursor: pointer; transition: all 0.2s; font-weight: 600; }
+.role-card.toggle:hover { border-color: #888; }
+.role-card.toggle.on { border-color: var(--tc); color: #fff; background: var(--tc-bg); box-shadow: 0 0 12px var(--tc-glow); }
+
+.screen { display: none; }
+.screen.active { display: block; }
+.setup-title {
+  text-align: center; font-size: 28px; font-weight: 900;
+  background: linear-gradient(135deg, #f5576c, #ff9800, #f5576c);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 24px; letter-spacing: 4px;
+}
+.setup-section { background: #1a1a2e; border-radius: 14px; padding: 24px; margin-bottom: 18px; border: 1px solid #2a2a3e; }
+.setup-section h3 { font-size: 17px; margin-bottom: 14px; color: #aaa; }
+.mode-cards { display: flex; gap: 16px; }
+.mode-card {
+  flex: 1; background: #222240; border: 3px solid #333; border-radius: 14px;
+  padding: 24px; text-align: center; cursor: pointer; transition: all 0.25s;
+}
+.mode-card:hover { border-color: #667eea; background: #252545; }
+.mode-card.selected { border-color: #667eea; background: #2a2a50; box-shadow: 0 0 20px rgba(102,126,234,0.25); }
+.mode-card .num { font-size: 48px; font-weight: 900; color: #667eea; }
+.mode-card .label { font-size: 16px; color: #aaa; margin-top: 6px; }
+
+.role-config { margin-top: 12px; }
+.role-section { margin-bottom: 14px; }
+.role-section-title { font-size: 12px; color: #888; margin-bottom: 6px; }
+.role-section-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.role-card {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 10px;
+  background: #1a1a30; border: 1px solid #2a2a3e;
+  font-size: 14px; white-space: nowrap;
+}
+.role-card .rc-icon { font-size: 20px; }
+.role-card .rc-count { font-weight: 700; color: #aaa; }
+.badge-toggle { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.tgl {
+  width: 48px; height: 26px; background: #444; border-radius: 13px;
+  position: relative; cursor: pointer; transition: background 0.3s;
+}
+.tgl.on { background: #667eea; }
+.tgl::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: left 0.3s;
+}
+.tgl.on::after { left: 25px; }
+
+/* Assignment Screen */
+.assign-header { text-align: center; margin-bottom: 16px; }
+.assign-header h2 { font-size: 22px; }
+.role-palette {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px;
+}
+.role-chip {
+  padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.2s; font-weight: 600;
+  user-select: none;
+}
+.role-chip:hover { transform: scale(1.05); }
+.role-chip.selected { border-color: #fff; transform: scale(1.08); box-shadow: 0 0 14px currentColor; }
+.role-chip .count { opacity: 0.7; font-size: 11px; }
+.number-grid { display: grid; gap: 12px; justify-content: center; }
+.number-grid.col9 { grid-template-columns: repeat(3, 80px); }
+.number-grid.col12 { grid-template-columns: repeat(4, 80px); }
+.num-card {
+  width: 80px; height: 90px; border-radius: 14px; display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; background: #1a1a30; border: 3px solid #333;
+  transition: all 0.2s; font-size: 28px; font-weight: 800; user-select: none;
+}
+.num-card:hover { border-color: #888; }
+.num-card.assigned { border-color: var(--c); }
+.num-card .card-role { font-size: 11px; margin-top: 2px; color: var(--c); }
+
+/* Game Screen */
+.game-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #1a1a2e; border-radius: 14px; padding: 16px 22px;
+  margin-bottom: 14px; border: 1px solid #2a2a3e;
+}
+.game-header .night-badge {
+  background: #667eea; padding: 6px 16px; border-radius: 20px;
+  font-weight: 700; font-size: 14px;
+}
+.game-header .phase-name { font-size: 18px; font-weight: 700; color: #f5576c; }
+.phase-indicator {
+  display: flex; gap: 6px; margin-bottom: 14px; justify-content: center;
+}
+.phase-dot {
+  padding: 6px 16px; border-radius: 16px; font-size: 12px; background: #222;
+  color: #666; font-weight: 600; transition: all 0.3s;
+}
+.phase-dot.done { background: #1a3a1a; color: #4caf50; }
+.phase-dot.current { background: #667eea; color: #fff; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+
+.player-grid { display: grid; gap: 10px; justify-content: center; margin-bottom: 16px; }
+.player-grid.col9 { grid-template-columns: repeat(5, 70px); }
+.player-grid.col12 { grid-template-columns: repeat(6, 70px); }
+.p-card {
+  width: 70px; height: 88px; border-radius: 12px; display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; background: #1a1a30; border: 2px solid #333;
+  transition: all 0.2s; font-size: 22px; font-weight: 700; user-select: none; position: relative;
+}
+.p-card:hover { border-color: #aaa; }
+.p-card.dead { opacity: 0.35; cursor: not-allowed; }
+.p-card.dead:hover { border-color: #333; }
+.p-card.target { border-color: #f5576c !important; box-shadow: 0 0 16px rgba(245,87,108,0.5); }
+.p-card.guarded { border-color: #2196F3 !important; box-shadow: 0 0 12px rgba(33,150,243,0.5); }
+.p-card.poisoned { border-color: #9c27b0 !important; box-shadow: 0 0 12px rgba(156,39,176,0.6); }
+.p-card.selected { border-color: #ff9800 !important; box-shadow: 0 0 14px rgba(255,152,0,0.5); }
+.p-card.blink {
+  animation: wolfBlink 0.6s infinite alternate;
+  border-color: #f44336 !important;
+}
+@keyframes wolfBlink { from { box-shadow: 0 0 8px rgba(244,67,54,0.4); } to { box-shadow: 0 0 22px rgba(244,67,54,0.9); } }
+.p-card .p-role-tag { font-size: 10px; margin-top: 1px; color: var(--c); }
+.p-card .badge-icon { position: absolute; top: -6px; right: -6px; font-size: 16px; }
+
+.action-area {
+  background: #1a1a2e; border-radius: 14px; padding: 20px; margin-bottom: 14px;
+  border: 1px solid #2a2a3e; text-align: center;
+}
+.action-prompt { font-size: 18px; margin-bottom: 14px; font-weight: 600; }
+.action-prompt .good-text { color: #4caf50; background: rgba(76,175,80,0.15); padding: 2px 8px; border-radius: 4px; }
+.action-prompt .bad-text { color: #f44336; background: rgba(244,67,54,0.15); padding: 2px 8px; border-radius: 4px; }
+.action-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+
+.result-toast {
+  margin-top: 12px; padding: 12px 18px; border-radius: 10px; font-size: 16px;
+  font-weight: 700; animation: fadeIn 0.3s;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(-8px);} to{opacity:1;transform:translateY(0);} }
+.result-toast.good { background: rgba(76,175,80,0.2); color: #4caf50; border: 1px solid #4caf50; }
+.result-toast.bad { background: rgba(244,67,54,0.2); color: #f44336; border: 1px solid #f44336; }
+
+.side-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.log-panel, .skill-panel {
+  background: #1a1a2e; border-radius: 14px; padding: 16px; border: 1px solid #2a2a3e;
+  max-height: 250px; overflow-y: auto;
+}
+.log-panel h4, .skill-panel h4 { font-size: 14px; color: #888; margin-bottom: 8px; }
+.log-entry { font-size: 13px; padding: 4px 0; border-bottom: 1px solid #1f1f35; color: #bbb; }
+.skill-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 5px 0; border-bottom: 1px solid #1f1f35; }
+.skill-status { font-weight: 600; font-size: 12px; padding: 2px 8px; border-radius: 10px; }
+.skill-status.available { background: rgba(76,175,80,0.2); color: #4caf50; }
+.skill-status.used { background: rgba(158,158,158,0.2); color: #999; }
+.skill-status.blocked { background: rgba(244,67,54,0.2); color: #f44336; }
+
+.modal-overlay {
+  display: none; position: fixed; top:0;left:0;right:0;bottom:0;
+  background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: #1a1a2e; border-radius: 16px; padding: 28px; max-width: 480px;
+  width: 90%; border: 1px solid #444; text-align: center;
+}
+.modal-box h2 { margin-bottom: 16px; }
+.modal-box .death-list { font-size: 16px; margin: 12px 0; }
+.death-item { padding: 6px; margin: 4px 0; border-radius: 6px; }
+.death-item.wolf-kill { background: rgba(244,67,54,0.15); color: #f5576c; }
+.death-item.poison { background: rgba(156,39,176,0.15); color: #ce93d8; }
+.death-item.saved { background: rgba(76,175,80,0.15); color: #4caf50; }
+
+.shooter-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.shooter-btn {
+  padding: 6px 14px; border-radius: 16px; font-size: 13px; cursor: pointer;
+  border: 2px solid #555; background: #222; color: #aaa; transition: all 0.2s;
+  font-family: inherit;
+}
+.shooter-btn:hover { border-color: #888; }
+.shooter-btn.sel { border-color: #f5576c; color: #f5576c; background: rgba(245,87,108,0.1); }
+
+@media (max-width: 600px) {
+  .mode-cards { flex-direction: column; }
+  .number-grid.col9, .number-grid.col12 { grid-template-columns: repeat(3, 70px); }
+  .player-grid.col9 { grid-template-columns: repeat(3, 65px); }
+  .player-grid.col12 { grid-template-columns: repeat(4, 60px); }
+  .side-panels { grid-template-columns: 1fr; }
+  .num-card { width: 70px; height: 80px; font-size: 24px; }
+  .p-card { width: 60px; height: 78px; font-size: 20px; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ===== SETUP SCREEN ===== -->
+<div id="screen-setup" class="screen active">
+  <div class="setup-title">狼人杀法官助手</div>
+  <div class="setup-section">
+    <h3>选择游戏模式</h3>
+    <div class="mode-cards" id="modeCards">
+      <div class="mode-card" data-mode="9">
+        <div class="num">9</div><div class="label">人局</div>
+      </div>
+      <div class="mode-card" data-mode="12">
+        <div class="num">12</div><div class="label">人局</div>
+      </div>
+    </div>
+  </div>
+  <div class="setup-section" id="roleConfigSection" style="display:none;">
+    <h3>身份配置</h3>
+    <div class="role-config" id="roleConfig"></div>
+    <div class="badge-toggle" id="badgeToggle" style="display:none;">
+      <span>警徽规则</span>
+      <div class="tgl" id="badgeSwitch" onclick="toggleBadge()"></div>
+      <span id="badgeLabel" style="color:#888;">关闭</span>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:18px;">
+    <button class="btn btn-primary" style="font-size:18px;padding:14px 48px;" onclick="startAssignment()">开始分配身份</button>
+    <button class="btn btn-dark" style="font-size:14px;padding:10px 20px;margin-left:10px;" onclick="showHistory()">📋 历史记录</button>
+  </div>
+</div>
+
+<!-- ===== ASSIGNMENT SCREEN ===== -->
+<div id="screen-assign" class="screen">
+  <div class="assign-header">
+    <h2>身份分配 — 第0夜</h2>
+    <p style="color:#888;font-size:13px;margin-top:4px;">点击角色标签，再点击号码牌分配身份</p>
+  </div>
+  <div class="role-palette" id="rolePalette"></div>
+  <div class="number-grid" id="assignGrid"></div>
+  <div style="text-align:center;margin-top:18px;">
+    <div id="assignProgress" style="color:#888;font-size:14px;margin-bottom:10px;"></div>
+    <button class="btn btn-success" id="btnConfirmAssign" style="font-size:16px;padding:12px 36px;" disabled onclick="confirmAssignment()">确认分配，进入游戏</button>
+    <button class="btn btn-dark" style="margin-left:10px;" onclick="backToSetup()">返回设置</button>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div id="screen-game" class="screen">
+  <div class="game-header">
+    <span class="night-badge" id="nightBadge">第1夜</span>
+    <span class="phase-name" id="phaseName">身份确认</span>
+    <button class="btn btn-dark" style="padding:6px 14px;font-size:12px;" onclick="backToSetup()">重新开始</button>
+  </div>
+  <div class="phase-indicator" id="phaseIndicator"></div>
+  <div style="display:flex;justify-content:center;margin-bottom:10px;">
+    <span id="sheriffBadge" style="font-size:12px;color:#ff9800;"></span>
+  </div>
+  <div class="player-grid" id="playerGrid"></div>
+  <div class="action-area" id="actionArea"></div>
+  <div class="side-panels">
+    <div class="skill-panel" id="skillPanel"><h4>技能状态</h4></div>
+    <div class="log-panel" id="logPanel"><h4>行动记录</h4></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="nightModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box" id="nightModalContent"></div>
+</div>
+
+</div>
+
+<script>
+// ===========================
+// ROLE METADATA
+// ===========================
+const ROLE_META = {
+  villager:   { name:'平民',   faction:'good', color:'#4caf50', icon:'👤' },
+  seer:       { name:'预言家', faction:'good', color:'#9c27b0', icon:'🔮' },
+  witch:      { name:'女巫',   faction:'good', color:'#e91e63', icon:'🧪' },
+  hunter:     { name:'猎人',   faction:'good', color:'#ff9800', icon:'🏹' },
+  guard:      { name:'守卫',   faction:'good', color:'#2196f3', icon:'🛡️' },
+  fool:       { name:'愚者',   faction:'good', color:'#607d8b', icon:'🎭' },
+  werewolf:   { name:'狼人',   faction:'wolf', color:'#f44336', icon:'🐺' },
+  wolfking:   { name:'狼王',   faction:'wolf', color:'#d32f2f', icon:'👑' },
+  whitewolf:  { name:'白狼王', faction:'wolf', color:'#b71c1c', icon:'💥' },
+};
+
+// Fixed role config per mode (villagers auto-calculated)
+function getRoleConfig() {
+  if (state.mode === 9) {
+    return [
+      { role:'werewolf', count:3 },
+      { role:'seer', count:1 },
+      { role:'witch', count:1 },
+      { role:'hunter', count:1 },
+    ];
+  } else {
+    return [
+      { role:'werewolf', count:3 },
+      { role: state.wolfBossType, count:1 },
+      { role:'seer', count:1 },
+      { role:'witch', count:1 },
+      { role:'hunter', count:1 },
+      { role: state.guardianType, count:1 },
+    ];
+  }
+}
+function getVillagerCount() {
+  const total = getRoleConfig().reduce((s,r)=>s+r.count, 0);
+  return state.mode - total;
+}
+
+// ===========================
+// STATE
+// ===========================
+let state = {
+  mode: 9, badgeRule: false, screen: 'setup', night: 0, isDay: false,
+  wolfBossType: 'wolfking', guardianType: 'guard',
+  players: [], badgeHolder: null, log: [],
+  phaseOrder: [], phaseIdx: 0,
+  wolfTarget: null, seerTarget: null, seerResult: null, guardTarget: null,
+  witchUsedAntidote: false, witchPoisonTarget: null,
+  wolfEmptyKill: false, uiLocked: false,
+};
+
+// Day interaction state
+let dayMode = 'normal';        // 'normal' | 'deathShoot' | 'pickWolf'
+let daySelectedTarget = null;  // for vote / manual kill
+let deathShootInfo = null;     // { number, role } — who is shooting/self-destructing
+let deathShootEndsDay = false; // true = advance to night after shoot; false = continue day
+let pendingNightDeathShoot = null; // hunter/wolfking killed by wolf at night — shoot before day starts
+
+// ===========================
+// HELPERS
+// ===========================
+function $(id) { return document.getElementById(id); }
+function factionOf(role) { return ROLE_META[role]?.faction || 'good'; }
+function roleName(role) { return ROLE_META[role]?.name || role; }
+function roleColor(role) { return ROLE_META[role]?.color || '#888'; }
+function roleIcon(role) { return ROLE_META[role]?.icon || '❓'; }
+function isAlive(n) { const p = state.players.find(p=>p.number===n); return p && p.isAlive; }
+function getPlayer(n) { return state.players.find(p=>p.number===n); }
+function aliveWolves() { return state.players.filter(p=>p.isAlive && factionOf(p.role)==='wolf'); }
+function addLog(msg) {
+  state.log.push({ time: state.night, msg });
+  renderLog();
+}
+
+function showScreen(name) {
+  state.screen = name;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById('screen-'+name);
+  if (el) el.classList.add('active');
+}
+
+function lockUI() { state.uiLocked = true; }
+function unlockUI() { state.uiLocked = false; }
+
+function saveState() {
+  const s = {
+    mode: state.mode, badgeRule: state.badgeRule, night: state.night, isDay: state.isDay,
+    wolfBossType: state.wolfBossType, guardianType: state.guardianType,
+    players: state.players, badgeHolder: state.badgeHolder, log: state.log,
+    phaseOrder: state.phaseOrder, phaseIdx: state.phaseIdx,
+    wolfTarget: state.wolfTarget, seerTarget: state.seerResult !== null ? state.seerTarget : null,
+    guardTarget: state.guardTarget,
+    witchUsedAntidote: state.witchUsedAntidote, witchPoisonTarget: state.witchPoisonTarget,
+    wolfEmptyKill: state.wolfEmptyKill,
+  };
+  try { localStorage.setItem('werewolf-judge-save', JSON.stringify(s)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('werewolf-judge-save');
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+function clearSave() {
+  try { localStorage.removeItem('werewolf-judge-save'); } catch(e) {}
+}
+
+function showMessage(msg) {
+  const modal = $('nightModal');
+  const content = $('nightModalContent');
+  content.innerHTML = `
+    <div style="padding:30px 20px;">
+      <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+      <div style="font-size:18px;font-weight:700;color:#fff;">${msg}</div>
+    </div>
+    <button class="btn btn-primary" style="font-size:15px;padding:10px 36px;" onclick="$('nightModal').classList.remove('show')">确定</button>`;
+  modal.classList.add('show');
+}
+
+function saveGameRecord(winner, reason) {
+  const record = {
+    id: Date.now(),
+    time: new Date().toLocaleString('zh-CN'),
+    mode: state.mode,
+    winner: winner,
+    reason: reason,
+    nights: state.night,
+    players: state.players.map(p => ({ number: p.number, role: p.role, isAlive: p.isAlive })),
+    log: [...state.log],
+    badgeRule: state.badgeRule,
+    wolfBossType: state.wolfBossType,
+    guardianType: state.guardianType,
+  };
+  try {
+    const history = JSON.parse(sessionStorage.getItem('werewolf-history') || '[]');
+    history.push(record);
+    if (history.length > 10) history.splice(0, history.length - 10);
+    sessionStorage.setItem('werewolf-history', JSON.stringify(history));
+  } catch(e) {}
+}
+
+function getGameHistory() {
+  try {
+    return JSON.parse(sessionStorage.getItem('werewolf-history') || '[]');
+  } catch(e) { return []; }
+}
+
+function showHistory() {
+  const history = getGameHistory();
+  const modal = $('nightModal');
+  const content = $('nightModalContent');
+
+  if (history.length === 0) {
+    content.innerHTML = `
+      <h2>📋 历史记录</h2>
+      <div style="color:#888;padding:30px 0;">暂无对局记录<br><small>完成一局游戏后会自动保存</small></div>
+      <button class="btn btn-dark" onclick="$('nightModal').classList.remove('show')">关闭</button>`;
+  } else {
+    let html = `<h2>📋 历史记录 (${history.length}局)</h2>
+      <div style="max-height:400px;overflow-y:auto;text-align:left;">`;
+    history.slice().reverse().forEach((r, i) => {
+      const idx = history.length - 1 - i;
+      const emoji = r.winner === 'good' ? '🎉' : '🐺';
+      const color = r.winner === 'good' ? '#4caf50' : '#f44336';
+      const roleSummary = r.players.map(p => p.number + '号' + roleName(p.role)).join('、');
+      html += `
+        <div style="background:#1a1a2e;border-radius:8px;padding:10px;margin:8px 0;cursor:pointer;border-left:3px solid ${color};" onclick="showHistoryDetail(${idx})">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span>${emoji} <b style="color:${color};">${r.winner === 'good' ? '好人胜' : '狼人胜'}</b> · ${r.mode}人局</span>
+            <span style="color:#888;font-size:11px;">${r.time}</span>
+          </div>
+          <div style="color:#aaa;font-size:11px;margin-top:3px;">共${r.nights}夜 · ${r.reason}</div>
+          <div style="color:#666;font-size:10px;margin-top:2px;">${roleSummary}</div>
+        </div>`;
+    });
+    html += `</div>
+      <button class="btn btn-dark" style="margin-top:12px;" onclick="$('nightModal').classList.remove('show')">关闭</button>`;
+    content.innerHTML = html;
+  }
+  modal.classList.add('show');
+}
+
+function showHistoryDetail(idx) {
+  const history = getGameHistory();
+  const r = history[idx];
+  if (!r) return;
+  const modal = $('nightModal');
+  const content = $('nightModalContent');
+  const emoji = r.winner === 'good' ? '🎉' : '🐺';
+  const color = r.winner === 'good' ? '#4caf50' : '#f44336';
+
+  // Build summary from log (same logic as buildGameSummary)
+  let logHtml = '';
+  const rounds = [];
+  let currentRound = null;
+  r.log.forEach(entry => {
+    if (entry.msg.startsWith('=== ')) {
+      if (currentRound) rounds.push(currentRound);
+      let label = entry.msg.replace(/=== | ===/g, '').replace(/^身份分配完成，进入/, '').replace(/^进入/, '');
+      currentRound = { label, events: [] };
+    } else if (currentRound) {
+      currentRound.events.push(entry.msg);
+    }
+  });
+  if (currentRound) rounds.push(currentRound);
+
+  rounds.forEach(round => {
+    logHtml += `<div style="margin:6px 0;text-align:left;font-size:12px;"><b>${round.label}</b></div>`;
+    round.events.forEach(e => {
+      logHtml += `<div style="text-align:left;font-size:11px;color:#aaa;padding-left:12px;">• ${e}</div>`;
+    });
+  });
+
+  const roleSummary = (r.players || []).map(p => p.number + '号' + roleName(p.role)).join('、');
+
+  content.innerHTML = `
+    <h2>${emoji} 对局详情</h2>
+    <div style="color:#888;font-size:13px;margin:4px 0;">${r.time} · ${r.mode}人局 · ${r.winner === 'good' ? '好人阵营获胜' : '狼人阵营获胜'}</div>
+    <div style="color:#aaa;font-size:12px;">${r.reason} · 共${r.nights}夜</div>
+    <div style="color:#666;font-size:11px;margin:4px 0;">身份：${roleSummary}</div>
+    <div style="max-height:300px;overflow-y:auto;background:#111;border-radius:8px;padding:12px;margin:10px 0;text-align:left;">
+      ${logHtml}
+    </div>
+    <button class="btn btn-dark" onclick="showHistory()">← 返回列表</button>
+    <button class="btn btn-dark" onclick="$('nightModal').classList.remove('show')">关闭</button>`;
+}
+
+// ===========================
+// SETUP
+// ===========================
+document.getElementById('modeCards').addEventListener('click', function(e) {
+  const card = e.target.closest('.mode-card');
+  if (!card) return;
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+  state.mode = parseInt(card.dataset.mode);
+  if (state.mode === 9) state.badgeRule = false;
+  updateRoleConfig();
+});
+
+function toggleBadge() {
+  state.badgeRule = !state.badgeRule;
+  const tgl = $('badgeSwitch');
+  const lbl = $('badgeLabel');
+  if (state.badgeRule) { tgl.classList.add('on'); lbl.textContent='开启'; lbl.style.color='#667eea'; }
+  else { tgl.classList.remove('on'); lbl.textContent='关闭'; lbl.style.color='#888'; }
+}
+
+function updateRoleConfig() {
+  const section = $('roleConfigSection');
+  const config = $('roleConfig');
+  const badgeTgl = $('badgeToggle');
+  section.style.display = 'block';
+
+  const rc = getRoleConfig();
+  const villager = getVillagerCount();
+  const gods = rc.filter(r=>factionOf(r.role)==='good');
+  const wolves = rc.filter(r=>factionOf(r.role)==='wolf');
+
+  // Helper: role card HTML
+  const roleCard = (r) => `<span class="role-card" style="border-color:${roleColor(r.role)};box-shadow:0 0 8px ${roleColor(r.role)}22;">
+    <span class="rc-icon">${roleIcon(r.role)}</span>${roleName(r.role)}${r.count > 1 ? ` <span class="rc-count">×${r.count}</span>` : ''}
+  </span>`;
+
+  // Helper: 12p toggle
+  const togglePair = (a, b, current, handler) => {
+    const onA = current === a;
+    const onB = current === b;
+    const styleA = onA
+      ? `--tc:${roleColor(a)};--tc-bg:${roleColor(a)}22;--tc-glow:${roleColor(a)}44;`
+      : `border-color:${roleColor(a)}66;`;
+    const styleB = onB
+      ? `--tc:${roleColor(b)};--tc-bg:${roleColor(b)}22;--tc-glow:${roleColor(b)}44;`
+      : `border-color:${roleColor(b)}66;`;
+    return `<span class="role-card toggle${onA?' on':''}" style="${styleA}" onclick="${handler}('${a}')"><span class="rc-icon">${roleIcon(a)}</span>${roleName(a)}</span>
+    <span class="role-card toggle${onB?' on':''}" style="${styleB}" onclick="${handler}('${b}')"><span class="rc-icon">${roleIcon(b)}</span>${roleName(b)}</span>`;
+  };
+
+  let html = '';
+
+  // --- Gods section ---
+  html += `<div class="role-section">
+    <div class="role-section-title">神职</div>
+    <div class="role-section-row">`;
+  gods.forEach(r => {
+    if (state.mode === 12 && (r.role === 'guard' || r.role === 'fool')) {
+      html += togglePair('guard', 'fool', state.guardianType, 'setGuardian');
+    } else {
+      html += roleCard(r);
+    }
+  });
+  html += roleCard({ role:'villager', count:villager });
+  html += `</div></div>`;
+
+  // --- Wolves section ---
+  html += `<div class="role-section">
+    <div class="role-section-title">狼人阵营</div>
+    <div class="role-section-row">`;
+  wolves.forEach(r => {
+    if (state.mode === 12 && (r.role === 'wolfking' || r.role === 'whitewolf')) {
+      html += togglePair('wolfking', 'whitewolf', state.wolfBossType, 'setWolfBoss');
+    } else {
+      html += roleCard(r);
+    }
+  });
+  html += `</div></div>`;
+
+  config.innerHTML = html;
+
+  badgeTgl.style.display = state.mode === 12 ? 'flex' : 'none';
+  if (state.mode === 9) {
+    state.badgeRule = false;
+    $('badgeSwitch').classList.remove('on');
+    $('badgeLabel').textContent = '关闭';
+    $('badgeLabel').style.color = '#888';
+  }
+}
+
+function setWolfBoss(type) { state.wolfBossType = type; updateRoleConfig(); }
+function setGuardian(type) { state.guardianType = type; updateRoleConfig(); }
+
+// Initial
+document.querySelector('.mode-card[data-mode="9"]').classList.add('selected');
+updateRoleConfig();
+
+// ===========================
+// ASSIGNMENT
+// ===========================
+let assignSelectedRole = null;
+let assignments = {};
+
+function startAssignment() {
+  assignments = {};
+  assignSelectedRole = null;
+  state.players = [];
+  state.night = 0;
+  state.log = [];
+  state.badgeHolder = null;
+  resetNightState();
+  showScreen('assign');
+  renderAssignment();
+}
+
+function renderAssignment() {
+  const palette = $('rolePalette');
+  const assignedCount = {};
+  Object.values(assignments).forEach(r=>{ assignedCount[r] = (assignedCount[r]||0)+1; });
+
+  const roleConfig = getRoleConfig();
+  palette.innerHTML = roleConfig.map(rc => {
+    const used = assignedCount[rc.role] || 0;
+    const full = used >= rc.count;
+    const sel = assignSelectedRole === rc.role ? ' selected' : '';
+    return `<div class="role-chip${sel}" style="color:${roleColor(rc.role)};background:${roleColor(rc.role)}22;border-color:${roleColor(rc.role)}44;${full?'opacity:0.4':''}"
+      data-role="${rc.role}" onclick="selectAssignRole('${rc.role}')">
+      ${roleName(rc.role)} <span class="count">${used}/${rc.count}</span>
+    </div>`;
+  }).join('');
+
+  // Number grid
+  const grid = $('assignGrid');
+  grid.className = 'number-grid col' + state.mode;
+  grid.innerHTML = Array.from({length:state.mode}, (_,i)=>i+1).map(n=>{
+    const role = assignments[n];
+    const style = role ? `style="border-color:${roleColor(role)};--c:${roleColor(role)}" class="assigned"` : '';
+    const label = role ? `<div class="card-role" style="--c:${roleColor(role)}">${roleName(role)}</div>` : '';
+    return `<div class="num-card" ${style} data-n="${n}" onclick="assignTo(${n})">${n}${label}</div>`;
+  }).join('');
+
+  // Progress (only count non-villager roles)
+  const needed = getRoleConfig().reduce((s,rc)=>s+rc.count, 0);
+  const assigned = Object.keys(assignments).length;
+  $('assignProgress').textContent = `已分配狼人/神职: ${assigned} / ${needed}`;
+  $('btnConfirmAssign').disabled = assigned < needed;
+}
+
+function selectAssignRole(role) {
+  const used = Object.values(assignments).filter(r=>r===role).length;
+  const needed = getRoleConfig().find(rc=>rc.role===role)?.count || 0;
+  if (used >= needed) return;
+  assignSelectedRole = assignSelectedRole === role ? null : role;
+  renderAssignment();
+}
+
+function assignTo(n) {
+  if (!assignSelectedRole) {
+    if (assignments[n]) { delete assignments[n]; renderAssignment(); }
+    return;
+  }
+  const role = assignSelectedRole;
+  const used = Object.values(assignments).filter(r=>r===role).length;
+  const needed = getRoleConfig().find(rc=>rc.role===role)?.count || 0;
+  if (used >= needed && assignments[n] !== role) return;
+  if (assignments[n] === role) { delete assignments[n]; }
+  else { assignments[n] = role; }
+  renderAssignment();
+}
+
+function confirmAssignment() {
+  state.players = [];
+  for (let n=1; n<=state.mode; n++) {
+    // Assigned role or auto villager
+    const role = assignments[n] || 'villager';
+    state.players.push({
+      number: n, role,
+      faction: factionOf(role),
+      isAlive: true,
+      antidoteUsed: false,
+      poisonUsed: false,
+      canShoot: true,
+      lastGuarded: null,
+      guardedThisNight: false,
+      exploded: false,
+    });
+  }
+  state.night = 1;
+  state.log = [];
+  state.badgeHolder = null;
+  resetNightState();
+  showScreen('game');
+  buildPhaseOrder();
+  renderGame();
+  addLog('=== 身份分配完成，进入第1夜 ===');
+  saveState();
+}
+
+function resetNightState() {
+  state.wolfTarget = null;
+  state.seerTarget = null;
+  state.seerResult = null;
+  state.guardTarget = null;
+  state.witchUsedAntidote = false;
+  state.witchPoisonTarget = null;
+  state.phaseIdx = 0;
+  state.isDay = false;
+  state.wolfEmptyKill = false;
+  state.uiLocked = false;
+  pendingNightDeathShoot = null;
+  state.players.forEach(p=>{ p.guardedThisNight = false; });
+}
+
+function buildPhaseOrder() {
+  const phases = [];
+  if (aliveWolves().length > 0) phases.push('wolf');
+  if (state.players.some(p=>p.role==='seer' && p.isAlive)) phases.push('seer');
+  if (state.players.some(p=>p.role==='witch' && p.isAlive)) phases.push('witch');
+  if (state.players.some(p=>p.role==='guard' && p.isAlive)) phases.push('guard');
+  state.phaseOrder = phases;
+  state.phaseIdx = 0;
+}
+
+function backToSetup() {
+  unlockUI();
+  clearSave();
+  showScreen('setup');
+  updateRoleConfig();
+}
+
+// ===========================
+// GAME RENDERING
+// ===========================
+function renderGame() {
+  renderHeader();
+  renderPhaseIndicator();
+  renderPlayerGrid();
+  renderActionArea();
+  renderSkillPanel();
+  renderLog();
+  renderSheriffBadge();
+}
+
+function renderHeader() {
+  if (state.isDay) {
+    $('nightBadge').textContent = `第${state.night}天`;
+    $('phaseName').textContent = '白天阶段';
+  } else {
+    $('nightBadge').textContent = `第${state.night}夜`;
+    const phase = state.phaseOrder[state.phaseIdx];
+    const phaseNames = { guard:'守卫行动', wolf:'狼人行动', seer:'预言家行动', witch:'女巫行动' };
+    $('phaseName').textContent = phase ? phaseNames[phase] || '' : '夜晚结束';
+  }
+}
+
+function renderPhaseIndicator() {
+  if (state.isDay) {
+    $('phaseIndicator').innerHTML = '<span class="phase-dot current">☀️ 白天</span>';
+    return;
+  }
+  const names = { guard:'守卫', wolf:'狼人', seer:'预言家', witch:'女巫' };
+  $('phaseIndicator').innerHTML = state.phaseOrder.map((p,i)=>{
+    let cls = '';
+    if (i < state.phaseIdx) cls = 'done';
+    else if (i === state.phaseIdx) cls = 'current';
+    return `<span class="phase-dot ${cls}">${names[p]||p}</span>`;
+  }).join('');
+}
+
+function renderPlayerGrid() {
+  const grid = $('playerGrid');
+  grid.className = 'player-grid col' + state.mode;
+  grid.innerHTML = state.players.map(p=>{
+    let cls = '';
+    if (!p.isAlive) cls += ' dead';
+    if (p.number === state.wolfTarget) cls += ' target';
+    if (p.guardedThisNight) cls += ' guarded';
+    if (p.number === state.witchPoisonTarget) cls += ' poisoned';
+    if (state.isDay) {
+      if (p.number === daySelectedTarget) cls += ' selected';
+      if (dayMode === 'pickWolf' && p.isAlive && factionOf(p.role) === 'wolf' && p.role !== 'whitewolf') cls += ' blink';
+      if (dayMode === 'deathShoot' && deathShootInfo && p.number === deathShootInfo.number) cls += ' dead';
+    }
+    const badge = p.number === state.badgeHolder ? '<span class="badge-icon">⭐</span>' : '';
+    return `<div class="p-card${cls}" style="--c:${roleColor(p.role)}" data-n="${p.number}" onclick="onPlayerClick(${p.number})">
+      ${badge}<span>${p.number}</span>
+      <span class="p-role-tag" style="--c:${roleColor(p.role)}">${roleName(p.role)}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderActionArea() {
+  const area = $('actionArea');
+  if (state.isDay) { area.innerHTML = renderDayPanel(); return; }
+
+  const phase = state.phaseOrder[state.phaseIdx];
+  if (!phase) {
+    area.innerHTML = `
+      <div class="action-prompt">✅ 今晚所有行动已完成</div>
+      <div style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="resolveNight()">结算夜晚结果</button>
+      </div>`;
+    return;
+  }
+
+  let html = '';
+  if (phase === 'guard') html = renderGuardPhase();
+  else if (phase === 'wolf') html = renderWolfPhase();
+  else if (phase === 'seer') html = renderSeerPhase();
+  else if (phase === 'witch') html = renderWitchPhase();
+  area.innerHTML = html;
+}
+
+// ===========================
+// NIGHT PHASE RENDERS (no inputs — click only)
+// ===========================
+function renderGuardPhase() {
+  const guard = state.players.find(p=>p.role==='guard' && p.isAlive);
+  if (!guard) return nextPhaseHTML();
+
+  let html = `<div class="action-prompt">🛡️ 守卫行动 — <span style="color:#888;">点击号码牌选择守护目标</span></div>`;
+  html += `<div style="font-size:12px;color:#888;margin-bottom:8px;">守卫是${guard.number}号 | `;
+  if (guard.lastGuarded) html += `上一晚守护了${guard.lastGuarded}号（不能连续守同一人）`;
+  else html += `尚未守护过`;
+  html += `</div>`;
+  if (state.guardTarget) html += `<div style="color:#2196F3;margin:6px 0;">✅ 已守护 <b>${state.guardTarget}号</b></div>`;
+  html += `<div class="action-btns"><button class="btn btn-dark" onclick="recordGuardEmpty()">空守（不守护）</button></div>`;
+  html += nextPhaseBtn();
+  return html;
+}
+
+function renderWolfPhase() {
+  let html = `<div class="action-prompt">🐺 狼人行动 — <span style="color:#888;">点击号码牌选择击杀目标</span></div>`;
+  if (state.wolfEmptyKill) {
+    html += `<div style="color:#ff9800;font-size:16px;margin:10px 0;">⚠️ 已选择空刀（不击杀）</div>`;
+    html += `<div style="font-size:12px;color:#888;">点击号码牌可改为击杀</div>`;
+  } else if (state.wolfTarget) {
+    html += `<div style="color:#f5576c;font-size:18px;margin:10px 0;">🎯 已选择击杀 <b>${state.wolfTarget}号</b></div>`;
+    html += `<div style="font-size:12px;color:#888;">点击其他号码可更改目标</div>`;
+  } else {
+    html += `<div style="font-size:12px;color:#888;">请点击下方存活号码牌选择击杀目标</div>`;
+  }
+  html += `<div class="action-btns"><button class="btn btn-dark" onclick="recordWolfEmpty()">空刀（不击杀）</button></div>`;
+  html += nextPhaseBtn();
+  return html;
+}
+
+function renderSeerPhase() {
+  let html = `<div class="action-prompt">🔮 预言家行动 — <span style="color:#888;">点击号码牌查验身份</span></div>`;
+  if (state.seerResult !== null) {
+    const target = state.seerTarget;
+    const result = state.seerResult;
+    if (result === 'wolf') {
+      html += `<div class="result-toast bad">（${target}）号玩家的身份是<span class="bad-text">坏人</span></div>`;
+    } else {
+      html += `<div class="result-toast good">（${target}）号玩家的身份是<span class="good-text">好人</span></div>`;
+    }
+    html += `<div style="font-size:12px;color:#888;margin-top:4px;">点击其他号码可重新查验</div>`;
+  } else {
+    html += `<div style="font-size:12px;color:#888;">请点击下方存活号码牌</div>`;
+  }
+  html += nextPhaseBtn();
+  return html;
+}
+
+function renderWitchPhase() {
+  const witch = state.players.find(p=>p.role==='witch' && p.isAlive);
+  if (!witch) return nextPhaseHTML();
+
+  let html = `<div class="action-prompt">🧪 女巫行动 — ${witch.number}号女巫</div>`;
+
+  // Show wolf kill
+  if (state.wolfTarget) {
+    html += `<div style="margin:8px 0;font-size:15px;color:#f5576c;">今晚狼人杀害的是 <b>${state.wolfTarget}号</b></div>`;
+  }
+
+  // Antidote
+  if (!witch.antidoteUsed) {
+    html += `<div class="action-btns" style="margin:8px 0;">`;
+    html += `<button class="btn btn-success" onclick="useAntidote()" ${state.witchPoisonTarget!==null?'disabled':''}>💚 使用解药救${state.wolfTarget||'?'}号</button>`;
+    html += `</div>`;
+  } else {
+    html += `<div style="color:#888;font-size:13px;">解药已使用</div>`;
+  }
+
+  // Poison — click on cards to toggle selection
+  if (!witch.poisonUsed && !state.witchUsedAntidote) {
+    html += `<div style="margin:6px 0;font-size:13px;color:#aaa;">☠️ 毒药：<b>点击号码牌</b>选择目标（再次点击取消）</div>`;
+    if (state.witchPoisonTarget !== null) {
+      const pt = getPlayer(state.witchPoisonTarget);
+      html += `<div style="color:#9c27b0;font-weight:600;margin:6px 0;">☠️ 已选中 <b>${state.witchPoisonTarget}号${roleName(pt.role)}</b> — 进入下一阶段时生效</div>`;
+    }
+  } else if (state.witchUsedAntidote) {
+    html += `<div style="color:#888;font-size:13px;">毒药不可用（当夜已使用解药）</div>`;
+  } else {
+    html += `<div style="color:#888;font-size:13px;">毒药已使用</div>`;
+  }
+
+  if (state.witchUsedAntidote) {
+    html += `<div style="color:#4caf50;font-weight:600;margin:6px 0;">✅ 已使用解药</div>`;
+  }
+  if (state.witchPoisonTarget !== null && witch.poisonUsed) {
+    html += `<div style="color:#f44336;font-weight:600;margin:6px 0;">☠️ 已对${state.witchPoisonTarget}号使用毒药</div>`;
+  }
+
+  html += `<div class="action-btns" style="margin-top:10px;">`;
+  html += `<button class="btn btn-dark" onclick="witchDoNothing()">不操作（不使用任何药水）</button>`;
+  html += `</div>`;
+  html += nextPhaseBtn();
+  return html;
+}
+
+function nextPhaseBtn() {
+  return `<div style="margin-top:14px;"><button class="btn btn-primary" onclick="nextPhase()">进入下一阶段 →</button></div>`;
+}
+
+function nextPhaseHTML() {
+  return `<div class="action-prompt" style="color:#888;">该角色不存在或已死亡，跳过此阶段</div>` + nextPhaseBtn();
+}
+
+// ===========================
+// SKILL PANEL
+// ===========================
+function renderSkillPanel() {
+  const panel = $('skillPanel');
+  let html = '<h4>技能状态</h4>';
+  const specials = state.players.filter(p=>
+    ['witch','hunter','guard','wolfking','whitewolf'].includes(p.role)
+  );
+  if (specials.length===0) { html += '<div style="color:#666;font-size:12px;">无特殊角色</div>'; }
+  specials.forEach(p=>{
+    html += `<div class="skill-row"><span>${p.number}号 ${roleName(p.role)}</span>`;
+    if (p.role==='witch') {
+      const a = p.antidoteUsed ? '已用' : '可用';
+      const ac = p.antidoteUsed ? 'used' : 'available';
+      const po = p.poisonUsed ? '已用' : '可用';
+      const pc = p.poisonUsed ? 'used' : 'available';
+      html += `<span><span class="skill-status ${ac}">解药:${a}</span> <span class="skill-status ${pc}">毒药:${po}</span>`;
+      if (!p.isAlive) html += ` <span class="skill-status used">已死亡</span>`;
+      html += `</span>`;
+    } else if (p.role==='hunter') {
+      const can = p.canShoot && p.isAlive;
+      html += `<span class="skill-status ${can?'available':'blocked'}">${can?'可开枪':'不可开枪'}${!p.isAlive?' (已死亡)':''}</span>`;
+    } else if (p.role==='guard') {
+      html += `<span><span class="skill-status ${p.isAlive?'available':'used'}">${p.isAlive?'存活':'已死亡'}</span>`;
+      if (p.lastGuarded) html += ` <span style="font-size:11px;color:#888;">上次守${p.lastGuarded}号</span>`;
+      html += `</span>`;
+    } else if (p.role==='wolfking') {
+      const can = p.isAlive;
+      html += `<span class="skill-status ${can?'available':'blocked'}">${can?'存活(可开枪)':'已死亡'}</span>`;
+    } else if (p.role==='whitewolf') {
+      const can = p.isAlive && !p.exploded;
+      html += `<span class="skill-status ${can?'available':'blocked'}">${can?'存活(可自爆)':(p.exploded?'已自爆':'已死亡')}</span>`;
+    }
+    html += `</div>`;
+  });
+  panel.innerHTML = html;
+}
+
+function renderLog() {
+  const panel = $('logPanel');
+  let html = '<h4>行动记录</h4>';
+  if (state.log.length === 0) { html += '<div style="color:#666;font-size:12px;">暂无记录</div>'; }
+  else {
+    state.log.slice(-30).reverse().forEach(e=>{
+      html += `<div class="log-entry">[第${e.time}夜] ${e.msg}</div>`;
+    });
+  }
+  panel.innerHTML = html;
+}
+
+function renderSheriffBadge() {
+  const el = $('sheriffBadge');
+  if (state.badgeRule && state.badgeHolder) {
+    el.textContent = `⭐ 警徽持有者: ${state.badgeHolder}号`;
+  } else if (state.badgeRule) {
+    el.textContent = `⭐ 警徽尚未分配（请在白天点击号码分配）`;
+  } else {
+    el.textContent = '';
+  }
+}
+
+// ===========================
+// PLAYER CLICK — central dispatch
+// ===========================
+function onPlayerClick(n) {
+  if (state.uiLocked) return;
+  const p = getPlayer(n);
+  if (!p) return;
+
+  // === DAY MODE ===
+  if (state.isDay) {
+    // Death shoot mode: click to select target and execute
+    if (dayMode === 'deathShoot') {
+      if (!p.isAlive) { showMessage('目标已死亡'); return; }
+      executeDeathShoot(n);
+      return;
+    }
+    // Pick wolf for self-destruct
+    if (dayMode === 'pickWolf') {
+      if (!p.isAlive || factionOf(p.role) !== 'wolf' || p.role === 'whitewolf') return;
+      wolfSelfDestructConfirm(n);
+      return;
+    }
+    // Badge assignment/reassignment: click a living player to assign or reassign
+    if (state.badgeRule) {
+      if (!p.isAlive) return;
+      if (state.badgeHolder === n) return; // Already has badge
+      assignBadge(n);
+      return;
+    }
+    // Normal mode: toggle selection
+    if (!p.isAlive) return;
+    daySelectedTarget = (daySelectedTarget === n) ? null : n;
+    renderPlayerGrid();
+    renderActionArea();
+    return;
+  }
+
+  // === NIGHT MODE ===
+  const phase = state.phaseOrder[state.phaseIdx];
+  if (!phase) return;
+  if (!p.isAlive) return;
+
+  if (phase === 'guard') {
+    recordGuard(n);
+  } else if (phase === 'wolf') {
+    recordWolf(n);
+  } else if (phase === 'seer') {
+    recordSeer(n);
+  } else if (phase === 'witch') {
+    const witch = state.players.find(p=>p.role==='witch' && p.isAlive);
+    // Allow toggling poison selection (not yet confirmed until phase end)
+    if (witch && !witch.poisonUsed && !state.witchUsedAntidote) {
+      usePoison(n);
+    }
+  }
+}
+
+// ===========================
+// PHASE ACTIONS (parameterized)
+// ===========================
+function recordGuard(n) {
+  const guard = state.players.find(p=>p.role==='guard' && p.isAlive);
+  if (!guard) return;
+  if (!isAlive(n)) { showMessage('目标已死亡，不能守护'); return; }
+  if (guard.lastGuarded === n) { showMessage('不能连续两晚守护同一人'); return; }
+
+  if (state.guardTarget && state.guardTarget !== n) {
+    const prev = getPlayer(state.guardTarget);
+    if (prev) prev.guardedThisNight = false;
+  }
+
+  state.guardTarget = n;
+  const target = getPlayer(n);
+  target.guardedThisNight = true;
+  renderGame();
+}
+
+function recordGuardEmpty() {
+  if (state.guardTarget) {
+    const prev = getPlayer(state.guardTarget);
+    if (prev) prev.guardedThisNight = false;
+  }
+  state.guardTarget = null;
+  renderGame();
+}
+
+function recordWolf(n) {
+  if (!isAlive(n)) { showMessage('目标已死亡，不能击杀'); return; }
+  state.wolfTarget = n;
+  state.wolfEmptyKill = false;
+  renderGame();
+}
+
+function recordWolfEmpty() {
+  state.wolfTarget = null;
+  state.wolfEmptyKill = true;
+  renderGame();
+}
+
+function recordSeer(n) {
+  if (!isAlive(n)) { showMessage('目标已死亡，不能查验'); return; }
+  state.seerTarget = n;
+  state.seerResult = factionOf(getPlayer(n).role);
+  renderGame();
+}
+
+function useAntidote() {
+  const witch = state.players.find(p=>p.role==='witch' && p.isAlive);
+  if (state.night > 1 && witch && state.wolfTarget === witch.number) { showMessage('女巫不能自救'); return; }
+  state.witchUsedAntidote = true;
+  if (witch) {
+    witch.antidoteUsed = true;
+  }
+  state.witchPoisonTarget = null; // Clear any poison selection
+  renderGame();
+}
+
+function usePoison(n) {
+  const witch = state.players.find(p=>p.role==='witch' && p.isAlive);
+  if (!witch || witch.poisonUsed || state.witchUsedAntidote) return;
+  if (!isAlive(n)) { showMessage('目标已死亡'); return; }
+  if (n === state.wolfTarget) { showMessage('不能毒杀狼人击杀目标'); return; }
+
+  // Toggle: click same number to deselect, different number to switch
+  if (state.witchPoisonTarget === n) {
+    state.witchPoisonTarget = null;
+  } else {
+    state.witchPoisonTarget = n;
+  }
+  renderGame();
+}
+
+function witchDoNothing() {
+  state.witchPoisonTarget = null;
+  nextPhase();
+}
+
+// ===========================
+// PHASE NAVIGATION
+// ===========================
+function nextPhase() {
+  const phase = state.phaseOrder[state.phaseIdx];
+  if (phase === 'wolf' && !state.wolfTarget && !state.wolfEmptyKill) { showMessage('请先点击号码牌选择狼人击杀目标，或选择空刀'); return; }
+  if (phase === 'seer' && state.seerResult === null) { showMessage('请先点击号码牌进行预言家查验'); return; }
+
+  // Log final action of the current phase (with actor numbers and target roles)
+  if (phase === 'guard') {
+    const guard = state.players.find(p=>p.role==='guard');
+    if (state.guardTarget) {
+      guard.lastGuarded = state.guardTarget;
+      const gt = getPlayer(state.guardTarget);
+      addLog(`${guard.number}号守卫守护了${state.guardTarget}号${roleName(gt.role)}`);
+    } else {
+      guard.lastGuarded = null;
+      addLog(`${guard.number}号守卫选择空守`);
+    }
+  } else if (phase === 'wolf') {
+    if (state.wolfEmptyKill) {
+      addLog(`狼人选择空刀`);
+    } else {
+      const wt = getPlayer(state.wolfTarget);
+      addLog(`狼人击杀${state.wolfTarget}号${roleName(wt.role)}`);
+    }
+  } else if (phase === 'seer') {
+    const seer = state.players.find(p=>p.role==='seer');
+    const st = getPlayer(state.seerTarget);
+    const label = state.seerResult === 'wolf' ? '坏人' : '好人';
+    addLog(`${seer.number}号预言家查验${state.seerTarget}号${roleName(st.role)}，结果为${label}`);
+  } else if (phase === 'witch') {
+    const witch = state.players.find(p=>p.role==='witch');
+    // Confirm poison selection (deferred until phase end)
+    if (witch && state.witchPoisonTarget !== null && !witch.poisonUsed) {
+      witch.poisonUsed = true;
+    }
+    if (witch) {
+      const wolfT = state.wolfTarget ? getPlayer(state.wolfTarget) : null;
+      const poisonT = state.witchPoisonTarget ? getPlayer(state.witchPoisonTarget) : null;
+      if (state.witchUsedAntidote && state.witchPoisonTarget !== null) {
+        addLog(`${witch.number}号女巫使用解药救${state.wolfTarget}号${roleName(wolfT.role)}，使用毒药毒杀${state.witchPoisonTarget}号${roleName(poisonT.role)}`);
+      } else if (state.witchUsedAntidote) {
+        addLog(`${witch.number}号女巫使用解药救了${state.wolfTarget}号${roleName(wolfT.role)}`);
+      } else if (state.witchPoisonTarget !== null) {
+        addLog(`${witch.number}号女巫使用毒药毒杀${state.witchPoisonTarget}号${roleName(poisonT.role)}`);
+      } else if (witch.antidoteUsed && witch.poisonUsed) {
+        addLog(`${witch.number}号女巫药水已耗尽`);
+      } else {
+        addLog(`${witch.number}号女巫未使用任何药水`);
+      }
+    }
+  }
+
+  // Predictive check: if current actions would eliminate a side, end game now
+  if (phase === 'wolf' && state.wolfTarget) {
+    if (predictiveWinCheck(state.wolfTarget, 'wolf')) return;
+  } else if (phase === 'witch' && state.witchPoisonTarget) {
+    if (predictiveWinCheck(state.witchPoisonTarget, 'poison')) return;
+  }
+
+  if (checkWinCondition()) return; // Game over — don't advance phases
+  state.phaseIdx++;
+  renderGame();
+}
+
+// Check if killing target would eliminate a side and cannot be prevented
+function predictiveWinCheck(targetNum, cause) {
+  const target = getPlayer(targetNum);
+  if (!target || !target.isAlive) return false;
+
+  // Can guard protect? (only against wolf kill)
+  if (cause === 'wolf') {
+    const guard = state.players.find(p=>p.role==='guard' && p.isAlive);
+    if (guard && state.guardTarget === targetNum && guard.lastGuarded !== targetNum) {
+      return false; // Guard can protect
+    }
+    // Can witch save?
+    const witch = state.players.find(p=>p.role==='witch' && p.isAlive);
+    if (witch && !witch.antidoteUsed) {
+      return false; // Witch can still use antidote this round
+    }
+  }
+
+  // Simulate: if target dies, would game end?
+  target.isAlive = false;
+  const willEnd = (aliveGods().length === 0 || aliveVillagers().length === 0 || aliveWolves().length === 0);
+  target.isAlive = true; // Restore — actual death handled in resolveNight
+
+  if (willEnd) {
+    // Trigger actual death + game over
+    target.isAlive = false;
+    if (cause === 'wolf') {
+      addLog(`${targetNum}号${roleName(target.role)}被狼人杀害`);
+    } else {
+      if (target.role === 'hunter') target.canShoot = false;
+      if (target.role === 'wolfking') target.canShoot = false;
+      addLog(`${targetNum}号${roleName(target.role)}被毒杀（被毒杀者不能发动技能）`);
+    }
+    handleBadgeTransfer(target);
+    renderGame();
+    checkWinCondition();
+    return true;
+  }
+  return false;
+}
+
+// ===========================
+// NIGHT RESOLUTION
+// ===========================
+function resolveNight() {
+  const deaths = [];
+  let saved = null;
+  const guardAndAntidoteConflict = state.wolfTarget
+    && getPlayer(state.wolfTarget).guardedThisNight
+    && state.witchUsedAntidote;
+
+  const guard = state.players.find(p=>p.role==='guard');
+  const witch = state.players.find(p=>p.role==='witch');
+
+  if (state.wolfTarget) {
+    const target = getPlayer(state.wolfTarget);
+    let wolfKillLanded = true;
+
+    if (guardAndAntidoteConflict) {
+      addLog(`守卫与解药冲突（同守同救），${state.wolfTarget}号${roleName(target.role)}死亡`);
+    } else if (target.guardedThisNight) {
+      wolfKillLanded = false;
+      addLog(`${guard.number}号守卫守护了${state.wolfTarget}号${roleName(target.role)}，狼刀无效`);
+    } else if (state.witchUsedAntidote) {
+      wolfKillLanded = false;
+      saved = state.wolfTarget;
+      // Antidote use already logged in witch phase; resolution only notes outcome
+    }
+
+    if (wolfKillLanded) {
+      target.isAlive = false;
+      deaths.push({ number: state.wolfTarget, cause: 'wolf', role: target.role });
+      addLog(`${state.wolfTarget}号${roleName(target.role)}被狼人杀害`);
+    }
+  }
+
+  if (state.witchPoisonTarget !== null) {
+    const pt = getPlayer(state.witchPoisonTarget);
+    pt.isAlive = false;
+    if (pt.role === 'hunter') pt.canShoot = false;
+    if (pt.role === 'wolfking') pt.canShoot = false;
+    if (pt.role === 'whitewolf') pt.exploded = true;
+    deaths.push({ number: state.witchPoisonTarget, cause: 'poison', role: pt.role });
+    addLog(`${state.witchPoisonTarget}号${roleName(pt.role)}被毒杀（被毒杀者不能发动技能）`);
+  }
+
+  deaths.forEach(d => {
+    const p = getPlayer(d.number);
+    if (p) handleBadgeTransfer(p);
+  });
+
+  // Check if hunter/wolfking died from wolf kill — will prompt shoot when day starts
+  pendingNightDeathShoot = null;
+  const nightKilled = deaths.find(d=>d.cause==='wolf' && ['hunter','wolfking'].includes(d.role));
+  if (nightKilled) {
+    pendingNightDeathShoot = { number: nightKilled.number, role: nightKilled.role };
+  }
+
+  showNightResult(deaths, saved);
+  checkWinCondition();
+}
+
+function showNightResult(deaths, saved) {
+  const modal = $('nightModal');
+  const content = $('nightModalContent');
+
+  let deathHTML = '';
+  if (deaths.length === 0) {
+    deathHTML = '<div class="death-item saved" style="font-size:20px;">🕊️ 今晚是平安夜</div>';
+  } else {
+    deaths.forEach(d=>{
+      const cls = d.cause==='wolf'?'wolf-kill':'poison';
+      const label = d.cause==='wolf'?'狼刀':'毒杀';
+      let extra = '';
+      if (d.cause === 'poison') {
+        if (d.role === 'hunter') extra = '（被毒杀，不能开枪）';
+        else if (d.role === 'wolfking') extra = '（被毒杀，不能开枪）';
+        else if (d.role === 'whitewolf') extra = '（被毒杀，不能自爆）';
+      }
+      deathHTML += `<div class="death-item ${cls}">${d.number}号 ${roleName(d.role)} — ${label}死亡${extra}</div>`;
+    });
+  }
+
+  if (saved) {
+    deathHTML += `<div class="death-item saved">💚 女巫解药救下了${saved}号</div>`;
+  }
+
+  content.innerHTML = `
+    <h2>🌙 第${state.night}夜结算</h2>
+    <div class="death-list">${deathHTML}</div>
+    <div style="margin-top:16px;">
+      <button class="btn btn-primary" onclick="advanceToDay()">进入白天 →</button>
+    </div>`;
+
+  modal.classList.add('show');
+}
+
+function advanceToDay() {
+  $('nightModal').classList.remove('show');
+  unlockUI();
+  state.isDay = true;
+
+  // Clear all night-time visual highlights
+  state.wolfTarget = null;
+  state.guardTarget = null;
+  state.players.forEach(p=>{ p.guardedThisNight = false; });
+
+  dayMode = 'normal';
+  daySelectedTarget = null;
+  deathShootInfo = null;
+  deathShootEndsDay = false;
+
+  // Hunter/wolfking killed by wolves at night: prompt death shoot before normal day
+  if (pendingNightDeathShoot) {
+    deathShootInfo = pendingNightDeathShoot;
+    dayMode = 'deathShoot';
+    pendingNightDeathShoot = null;
+    addLog(`=== 进入第${state.night}天 ===`);
+    renderGame();
+    return;
+  }
+
+  renderGame();
+  addLog(`=== 进入第${state.night}天 ===`);
+  saveState();
+}
+
+// ===========================
+// DAY PANEL
+// ===========================
+function renderDayPanel() {
+  // --- Death shoot mode: prompted after hunter/wolfking voted out or whitewolf self-destruct ---
+  if (dayMode === 'deathShoot' && deathShootInfo) {
+    const shooterName = roleName(deathShootInfo.role);
+    let html = `<div class="action-prompt">💥 ${deathShootInfo.number}号${shooterName}发动技能 — <span style="color:#f5576c;">点击号码牌选择带走的目标</span></div>`;
+    html += `<div style="font-size:12px;color:#888;margin-bottom:8px;">只能选择存活的玩家</div>`;
+    html += `<div class="action-btns" style="margin-top:14px;">
+      <button class="btn btn-dark btn-sm" onclick="skipDeathShoot()">放弃使用技能</button>
+    </div>`;
+    return html;
+  }
+
+  // --- Pick wolf mode: select a wolf for self-destruct ---
+  if (dayMode === 'pickWolf') {
+    let html = `<div class="action-prompt">💥 狼人自爆 — <span style="color:#f5576c;">点击闪烁的狼人号码</span></div>`;
+    html += `<div style="font-size:12px;color:#888;margin-bottom:8px;">存活的狼人号码正在闪烁</div>`;
+    html += `<div class="action-btns" style="margin-top:14px;">
+      <button class="btn btn-dark btn-sm" onclick="cancelPickWolf()">取消</button>
+    </div>`;
+    return html;
+  }
+
+  // --- Normal day mode ---
+  let html = `<div class="action-prompt">☀️ 第${state.night}天 — 白天阶段</div>`;
+
+  // Badge assignment prompt
+  if (state.badgeRule && !state.badgeHolder) {
+    html += `<div style="margin:8px 0;padding:10px;background:rgba(255,152,0,0.1);border:1px solid #ff9800;border-radius:8px;color:#ff9800;font-weight:600;">⭐ 请点击存活号码牌分配警徽</div>`;
+  }
+
+  if (daySelectedTarget) {
+    html += `<div style="color:#ff9800;font-size:16px;font-weight:700;margin:8px 0;">已选中: ${daySelectedTarget}号 ${roleName(getPlayer(daySelectedTarget).role)}</div>`;
+  } else {
+    html += `<div style="font-size:13px;color:#888;margin:6px 0;">点击号码牌选中目标，再点击操作按钮</div>`;
+  }
+
+  html += `<div class="action-btns" style="margin:10px 0;">`;
+  html += `<button class="btn btn-danger btn-sm" onclick="voteOut()" ${!daySelectedTarget?'disabled':''}>🗳️ 投票放逐</button>`;
+  html += `</div>`;
+
+  // Self-destruct buttons
+  html += `<div style="margin:10px 0;padding:10px;background:#1f1f35;border-radius:8px;">`;
+  html += `<b>自爆：</b>`;
+  html += `<div class="shooter-btns" style="margin-top:6px;">`;
+  // Only show white wolf self-destruct if whitewolf is in the game
+  const hasWhitewolf = state.players.some(p=>p.role==='whitewolf' && p.isAlive);
+  if (hasWhitewolf) {
+    html += `<button class="shooter-btn" onclick="whitewolfSelfDestruct()">💥 白狼王自爆</button>`;
+  }
+  html += `<button class="shooter-btn" onclick="wolfSelfDestruct()">🐺 狼人自爆</button>`;
+  html += `</div></div>`;
+
+  if (state.badgeRule && state.badgeHolder) {
+    html += `<div style="margin:6px 0;font-size:13px;">⭐ 警徽持有者: <span style="color:#ff9800;">${state.badgeHolder}号</span></div>`;
+  }
+
+  html += `<div class="action-btns" style="margin-top:16px;">
+    <button class="btn btn-primary" onclick="startNextNight()">🌙 进入第${state.night+1}夜</button>
+  </div>`;
+  return html;
+}
+
+// ===========================
+// DAY ACTIONS
+// ===========================
+function executeDeathShoot(n) {
+  if (!deathShootInfo) return;
+  if (!isAlive(n)) { showMessage('目标已死亡'); return; }
+  const shooterName = roleName(deathShootInfo.role);
+  const target = getPlayer(n);
+  target.isAlive = false;
+  if (target.role === 'hunter') target.canShoot = false;
+  handleBadgeTransfer(target);
+  addLog(`${deathShootInfo.number}号${shooterName}发动技能带走了${n}号${roleName(target.role)}`);
+  const endsDay = deathShootEndsDay;
+  dayMode = 'normal';
+  deathShootInfo = null;
+  deathShootEndsDay = false;
+  renderGame();
+  if (checkWinCondition()) return;
+  if (endsDay) {
+    lockUI();
+    setTimeout(() => { unlockUI(); startNextNight(); }, 500);
+  }
+}
+
+function skipDeathShoot() {
+  if (deathShootInfo) {
+    addLog(`${deathShootInfo.number}号${roleName(deathShootInfo.role)}放弃使用技能`);
+  }
+  const endsDay = deathShootEndsDay;
+  dayMode = 'normal';
+  deathShootInfo = null;
+  deathShootEndsDay = false;
+  renderGame();
+  if (checkWinCondition()) return;
+  if (endsDay) {
+    lockUI();
+    setTimeout(() => { unlockUI(); startNextNight(); }, 500);
+  }
+}
+
+function whitewolfSelfDestruct() {
+  const ww = state.players.find(p=>p.role==='whitewolf' && p.isAlive);
+  if (!ww) { showMessage('没有存活的白狼王'); return; }
+  ww.isAlive = false;
+  ww.exploded = true;
+  handleBadgeTransfer(ww);
+  addLog(`${ww.number}号白狼王自爆`);
+  if (checkWinCondition()) return; // Whitewolf was the last wolf
+  deathShootInfo = { number: ww.number, role: 'whitewolf' };
+  deathShootEndsDay = true;
+  dayMode = 'deathShoot';
+  daySelectedTarget = null;
+  renderGame();
+}
+
+function wolfSelfDestruct() {
+  const wolves = state.players.filter(p=>p.isAlive && factionOf(p.role)==='wolf' && p.role !== 'whitewolf');
+  if (wolves.length === 0) { showMessage('没有存活的普通狼人（白狼王请使用专属自爆按钮）'); return; }
+  if (wolves.length === 1) {
+    // Only one wolf alive, auto-select
+    wolfSelfDestructConfirm(wolves[0].number);
+  } else {
+    dayMode = 'pickWolf';
+    daySelectedTarget = null;
+    renderGame();
+  }
+}
+
+function wolfSelfDestructConfirm(n) {
+  const p = getPlayer(n);
+  if (!p || !p.isAlive || factionOf(p.role) !== 'wolf') return;
+  p.isAlive = false;
+  if (p.role === 'whitewolf') p.exploded = true;
+  handleBadgeTransfer(p);
+  addLog(`${n}号${roleName(p.role)}自爆`);
+  dayMode = 'normal';
+  // Auto-advance to night
+  startNextNight();
+}
+
+function cancelPickWolf() {
+  dayMode = 'normal';
+  renderGame();
+}
+
+function aliveGods() {
+  return state.players.filter(p=>p.isAlive && p.role!=='villager' && factionOf(p.role)==='good');
+}
+function aliveVillagers() {
+  return state.players.filter(p=>p.isAlive && p.role==='villager');
+}
+
+function checkWinCondition() {
+  const wolves = aliveWolves().length;
+  const gods = aliveGods().length;
+  const villagers = aliveVillagers().length;
+
+  let winner = null;
+  let reason = '';
+
+  if (wolves === 0) {
+    winner = 'good';
+    reason = '所有狼人已被消灭';
+  } else if (gods === 0) {
+    winner = 'wolf';
+    reason = '所有神职已被淘汰';
+  } else if (villagers === 0) {
+    winner = 'wolf';
+    reason = '所有平民已被淘汰';
+  }
+
+  if (winner) {
+    lockUI();
+    setTimeout(()=>{ showGameOverBanner(winner, reason); }, 300);
+    return true;
+  }
+  return false;
+}
+
+function buildGameSummary() {
+  let html = '';
+  const rounds = [];
+  let currentRound = null;
+  state.log.forEach(entry => {
+    if (entry.msg.startsWith('=== ')) {
+      if (currentRound) rounds.push(currentRound);
+      let label = entry.msg.replace(/=== | ===/g, '');
+      // Simplify: "身份分配完成，进入第1夜" → "第1夜", "进入第1天" → "第1天"
+      label = label.replace(/^身份分配完成，进入/, '').replace(/^进入/, '');
+      currentRound = { label, events: [] };
+    } else if (currentRound) {
+      currentRound.events.push(entry.msg);
+    }
+  });
+  if (currentRound) rounds.push(currentRound);
+
+  rounds.forEach(r => {
+    html += `<div style="margin:6px 0;text-align:left;font-size:12px;"><b>${r.label}</b></div>`;
+    r.events.forEach(e => {
+      html += `<div style="text-align:left;font-size:11px;color:#aaa;padding-left:12px;">• ${e}</div>`;
+    });
+  });
+  return html;
+}
+
+function showGameOverBanner(winner, reason) {
+  saveGameRecord(winner, reason);
+  const modal = $('nightModal');
+  const content = $('nightModalContent');
+  const emoji = winner === 'good' ? '🎉' : '🐺';
+  const winnerName = winner === 'good' ? '好人阵营获胜！' : '狼人阵营获胜！';
+  const borderColor = winner === 'good' ? '#4caf50' : '#f44336';
+
+  content.innerHTML = `
+    <div style="padding:20px 0;">
+      <div style="font-size:60px;margin-bottom:10px;">${emoji}</div>
+      <div style="font-size:26px;font-weight:900;color:${borderColor};margin:10px 0;">${winnerName}</div>
+      <div style="color:#aaa;font-size:14px;margin:6px 0;">${reason}</div>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="btn btn-primary" style="font-size:16px;padding:12px 36px;" onclick="showGameSummary('${winner}')">📋 查看本局记录</button>
+    </div>`;
+
+  modal.classList.add('show');
+}
+
+function showGameSummary(winner) {
+  const modal = $('nightModal');
+  const content = $('nightModalContent');
+  const summary = buildGameSummary();
+
+  content.innerHTML = `
+    <h2>📋 本局记录</h2>
+    <div style="max-height:350px;overflow-y:auto;background:#111;border-radius:8px;padding:12px;margin:10px 0;text-align:left;">
+      ${summary}
+    </div>
+    <div style="margin-top:16px;">
+      <button class="btn btn-primary" onclick="$('nightModal').classList.remove('show');backToSetup();">返回主菜单</button>
+    </div>`;
+
+  modal.classList.add('show');
+}
+
+function handleBadgeTransfer(deadPlayer) {
+  if (state.badgeRule && state.badgeHolder === deadPlayer.number) {
+    state.badgeHolder = null;
+    addLog(`警徽持有者${deadPlayer.number}号死亡，警徽待转移`);
+  }
+}
+
+function assignBadge(n) {
+  state.badgeHolder = n;
+  addLog(n ? `警徽分配给${n}号` : '警徽被移除');
+  renderGame();
+}
+
+function voteOut() {
+  if (!daySelectedTarget) return;
+  const n = daySelectedTarget;
+  daySelectedTarget = null;
+  const p = getPlayer(n);
+  if (!p || !p.isAlive) { showMessage('该玩家已死亡'); return; }
+
+  if (p.role === 'fool') {
+    addLog(`${n}号${roleName(p.role)}被投票放逐，但愚者豁免死亡（仅此一次）`);
+    p.role = 'villager';
+    renderGame();
+    return;
+  }
+
+  p.isAlive = false;
+  handleBadgeTransfer(p);
+  addLog(`${n}号${roleName(p.role)}被投票放逐`);
+
+  if (['hunter','wolfking'].includes(p.role)) {
+    deathShootInfo = { number: n, role: p.role };
+    deathShootEndsDay = true;
+    dayMode = 'deathShoot';
+    renderGame();
+    return;
+  }
+  // No death shoot: advance to night immediately
+  renderGame();
+  if (!checkWinCondition()) {
+    lockUI();
+    setTimeout(() => { unlockUI(); startNextNight(); }, 500);
+  }
+}
+
+function startNextNight() {
+  if (dayMode === 'deathShoot' && deathShootInfo) {
+    showMessage('请先完成或放弃死亡开枪技能，再进入夜晚');
+    return;
+  }
+  if (dayMode === 'pickWolf') {
+    showMessage('请先选择自爆的狼人或取消');
+    return;
+  }
+  if (checkWinCondition()) return; // Game over — don't advance
+  state.isDay = false;
+  state.night++;
+  dayMode = 'normal';
+  daySelectedTarget = null;
+  deathShootInfo = null;
+  resetNightState();
+  buildPhaseOrder();
+  renderGame();
+  addLog(`=== 进入第${state.night}夜 ===`);
+  saveState();
+}
+
+// ===========================
+// RESTORE
+// ===========================
+function restoreGame() {
+  const saved = loadState();
+  if (!saved) return false;
+  if (!saved.players || saved.players.length === 0) return false;
+
+  state.mode = saved.mode;
+  state.badgeRule = saved.badgeRule;
+  state.night = saved.night;
+  state.isDay = saved.isDay;
+  state.wolfBossType = saved.wolfBossType;
+  state.guardianType = saved.guardianType;
+  state.players = saved.players;
+  state.badgeHolder = saved.badgeHolder;
+  state.log = saved.log;
+  state.phaseOrder = saved.phaseOrder;
+  state.phaseIdx = saved.phaseIdx;
+  state.wolfTarget = saved.wolfTarget;
+  state.seerTarget = saved.seerTarget;
+  state.seerResult = saved.seerTarget ? factionOf(getPlayer(saved.seerTarget)?.role) : null;
+  state.guardTarget = saved.guardTarget;
+  state.witchUsedAntidote = saved.witchUsedAntidote;
+  state.witchPoisonTarget = saved.witchPoisonTarget;
+  state.wolfEmptyKill = saved.wolfEmptyKill || false;
+  state.uiLocked = false;
+
+  dayMode = 'normal';
+  daySelectedTarget = null;
+  deathShootInfo = null;
+  deathShootEndsDay = false;
+  pendingNightDeathShoot = null;
+
+  showScreen('game');
+  renderGame();
+  return true;
+}
+
+// ===========================
+// INIT
+// ===========================
+clearSave();
+renderAssignment();
+</script>
+</body>
+</html>
